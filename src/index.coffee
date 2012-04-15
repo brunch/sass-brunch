@@ -19,7 +19,7 @@ module.exports = class SassCompiler
     # without spawning child process is ~20ms.
     options = [
       '--stdin',
-      '--load-path', (sysPath.join @config.rootPath, 'app', 'styles'),
+      '--load-path', (sysPath.join @config.paths.root, 'app', 'styles'),
       '--no-cache',
     ]
     options.push '--scss' if /\.scss$/.test path
