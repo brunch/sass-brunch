@@ -12,7 +12,7 @@ module.exports = class SassCompiler
     # @process = spawn 'sass'
     null
 
-  compile: (data, path, callback) ->
+  compile: (data, path, callback) =>
     result = ''
     error = null
     # Warning: spawning child processes is a quite slow operation.
@@ -32,7 +32,7 @@ module.exports = class SassCompiler
       callback error, result.toString()
 
   getDependencies: (data, path, callback) =>
-    paths = data.match(@_dependencyRegExp) or ''
+    paths = data.match(@_dependencyRegExp) or []
     parent = sysPath.dirname path
     dependencies = paths
       .map (path) =>
@@ -40,8 +40,9 @@ module.exports = class SassCompiler
         @_dependencyRegExp.lastIndex = 0
         (res or [])[1]
       .map (path) =>
+        path = path.replace(/(\w+\.|\w+$)/, '_$1')
         if sysPath.extname(path) isnt ".#{@extension}"
-          path + ".#{@extension}"
+          "#{path}.#{@extension}"
         else
           path
       .map(sysPath.join.bind(null, parent))
