@@ -1,4 +1,5 @@
 ## sass-brunch 1.1.2 (May 10, 2012)
+* Changed stylus load path from `app/styles` to `config.paths.root`.
 * Added support for chain compilation.
 * Fixed an issue when sass was cropping long files.
 
