@@ -1,3 +1,7 @@
+## sass-brunch 1.1.2 (May 10, 2012)
+* Added support for chain compilation.
+* Fixed an issue when sass was cropping long files.
+
 ## sass-brunch 1.1.1 (April 15, 2012)
 * Fixed error reporting when installing the package.
 
