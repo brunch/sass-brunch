@@ -1,5 +1,8 @@
+var sysPath = require('path');
+
 describe('Plugin', function() {
   var plugin;
+  var fileName = 'app/styles/style.scss';
 
   beforeEach(function() {
     plugin = new Plugin({paths: {root: '.'}});
@@ -31,6 +34,27 @@ describe('Plugin', function() {
     plugin.compile(content, 'file.sass', function(error, data) {
       expect(error).not.to.be.ok();
       expect(data).to.equal(expected)
+      done();
+    });
+  });
+
+  it('should output valid deps', function(done) {
+    var content = "\
+    @import _invalid\n\
+    @import \'valid1\';\n\
+    @import \"./valid2.scss\";\n\
+    @import \'../../vendor/styles/valid3\';\n\
+    ";
+
+    var expected = [
+      sysPath.join('app', 'styles', '_valid1.scss'),
+      sysPath.join('app', 'styles', '_valid2.scss'),
+      sysPath.join('vendor', 'styles', '_valid3.scss')
+    ];
+
+    plugin.getDependencies(content, fileName, function(error, dependencies) {
+      expect(error).not.to.be.ok();
+      expect(dependencies).to.eql(expected);
       done();
     });
   });

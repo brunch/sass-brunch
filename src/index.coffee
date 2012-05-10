@@ -6,6 +6,7 @@ module.exports = class SassCompiler
   type: 'stylesheet'
   extension: 'scss'
   pattern: /\.s[ac]ss$/
+  _dependencyRegExp: /@import ['"](.*)['"]/g
 
   constructor: (@config) ->
     return
@@ -32,3 +33,21 @@ module.exports = class SassCompiler
       error += stderr.toString()
     sass.on 'exit', (code) ->
       callback error, result
+
+  getDependencies: (data, path, callback) =>
+    paths = data.match(@_dependencyRegExp) or []
+    parent = sysPath.dirname path
+    dependencies = paths
+      .map (path) =>
+        res = @_dependencyRegExp.exec(path)
+        @_dependencyRegExp.lastIndex = 0
+        (res or [])[1]
+      .map (path) =>
+        path = path.replace(/(\w+\.|\w+$)/, '_$1')
+        if sysPath.extname(path) isnt ".#{@extension}"
+          "#{path}.#{@extension}"
+        else
+          path
+      .map(sysPath.join.bind(null, parent))
+    process.nextTick =>
+      callback null, dependencies
