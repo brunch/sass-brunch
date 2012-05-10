@@ -8,8 +8,7 @@ module.exports = class SassCompiler
   pattern: /\.s[ac]ss$/
 
   constructor: (@config) ->
-    # @process = spawn 'sass'
-    null
+    return
 
   compile: (data, path, callback) ->
     result = ''
@@ -19,13 +18,17 @@ module.exports = class SassCompiler
     # without spawning child process is ~20ms.
     options = [
       '--stdin',
-      '--load-path', (sysPath.join @config.paths.root, 'app', 'styles'),
+      '--load-path', @config.paths.root,
+      '--load-path', sysPath.dirname(path),
       '--no-cache',
     ]
     options.push '--scss' if /\.scss$/.test path
     sass = spawn 'sass', options
     sass.stdin.end data
-    sass.stdout.on 'data', (stdout) -> result = stdout
-    sass.stderr.on 'data', (stderr) -> error = stderr
+    sass.stdout.on 'data', (stdout) ->
+      result += stdout.toString()
+    sass.stderr.on 'data', (stderr) ->
+      error ?= ''
+      error += stderr.toString()
     sass.on 'exit', (code) ->
-      callback error, result.toString()
+      callback error, result
