@@ -1,4 +1,4 @@
-{spawn} = require 'child_process'
+{spawn, exec} = require 'child_process'
 sysPath = require 'path'
 
 module.exports = class SassCompiler
@@ -9,6 +9,8 @@ module.exports = class SassCompiler
   _dependencyRegExp: /@import ['"](.*)['"]/g
 
   constructor: (@config) ->
+    exec 'compass --version', (error, stdout, stderr) =>
+      @compass = not error
     return
 
   compile: (data, path, callback) ->
@@ -23,16 +25,25 @@ module.exports = class SassCompiler
       '--load-path', sysPath.dirname(path),
       '--no-cache',
     ]
-    options.push '--scss' if /\.scss$/.test path
-    sass = spawn 'sass', options
-    sass.stdin.end data
-    sass.stdout.on 'data', (stdout) ->
-      result += stdout.toString()
-    sass.stderr.on 'data', (stderr) ->
-      error ?= ''
-      error += stderr.toString()
-    sass.on 'exit', (code) ->
-      callback error, result
+    execute = =>
+      options.push '--compass' if @compass
+      options.push '--scss' if /\.scss$/.test path
+      sass = spawn 'sass', options
+      sass.stdin.end data
+      sass.stdout.on 'data', (buffer) ->
+        result += buffer.toString()
+      sass.stderr.on 'data', (buffer) ->
+        error ?= ''
+        error += buffer.toString()
+      sass.on 'exit', (code) ->
+        callback error, result
+
+    delay = =>
+      if @compass?
+        execute()
+      else
+        setTimeout delay, 100
+    do delay
 
   getDependencies: (data, path, callback) =>
     paths = data.match(@_dependencyRegExp) or []
@@ -42,6 +53,7 @@ module.exports = class SassCompiler
         res = @_dependencyRegExp.exec(path)
         @_dependencyRegExp.lastIndex = 0
         (res or [])[1]
+      .filter((path) => !!path and path.indexOf('compass') isnt 0)
       .map (path) =>
         path = path.replace(/(\w+\.|\w+$)/, '_$1')
         if sysPath.extname(path) isnt ".#{@extension}"
