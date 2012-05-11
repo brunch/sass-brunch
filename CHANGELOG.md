@@ -1,3 +1,6 @@
+## sass-brunch 1.1.3 (May 10, 2012)
+* Added Compass support.
+
 ## sass-brunch 1.1.2 (May 10, 2012)
 * Changed stylus load path from `app/styles` to `config.paths.root`.
 * Added support for chain compilation.
