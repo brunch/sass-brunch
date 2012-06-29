@@ -9,11 +9,11 @@ describe('Plugin', function() {
   });
 
   it('should be an object', function() {
-    expect(plugin).to.be.ok();
+    expect(plugin).to.be.ok;
   });
 
   it('should has #compile method', function() {
-    expect(plugin.compile).to.be.a(Function);
+    expect(plugin.compile).to.be.an.instanceof(Function);
   });
 
   it('should compile and produce valid result for scss', function(done) {
@@ -21,7 +21,7 @@ describe('Plugin', function() {
     var expected = '.test {\n  border-color: #fff; }\n';
 
     plugin.compile(content, 'file.scss', function(error, data) {
-      expect(error).not.to.be.ok();
+      expect(error).not.to.be.ok;
       expect(data).to.equal(expected)
       done();
     });
@@ -32,7 +32,7 @@ describe('Plugin', function() {
     var expected = '.test {\n  border-color: white; }\n';
 
     plugin.compile(content, 'file.sass', function(error, data) {
-      expect(error).not.to.be.ok();
+      expect(error).not.to.be.ok;
       expect(data).to.equal(expected)
       done();
     });
@@ -53,7 +53,7 @@ describe('Plugin', function() {
     ];
 
     plugin.getDependencies(content, fileName, function(error, dependencies) {
-      expect(error).not.to.be.ok();
+      expect(error).not.to.be.ok;
       expect(dependencies).to.eql(expected);
       done();
     });
