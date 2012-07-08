@@ -9,9 +9,12 @@ module.exports = class SassCompiler
   _dependencyRegExp: /@import ['"](.*)['"]/g
 
   constructor: (@config) ->
+    exec 'sass --version', (error, stdout, stderr) =>
+      if error
+        console.error "You need to have Sass on your system"
+        console.error "Execute `gem install sass`"
     exec 'compass --version', (error, stdout, stderr) =>
       @compass = not error
-    return
 
   compile: (data, path, callback) ->
     result = ''
@@ -29,7 +32,6 @@ module.exports = class SassCompiler
       options.push '--compass' if @compass
       options.push '--scss' if /\.scss$/.test path
       sass = spawn 'sass', options
-      sass.stdin.end data
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
@@ -37,6 +39,7 @@ module.exports = class SassCompiler
         error += buffer.toString()
       sass.on 'exit', (code) ->
         callback error, result
+      sass.stdin.end data
 
     delay = =>
       if @compass?
