@@ -7,9 +7,12 @@ module.exports = class SassCompiler
   extension: 'scss'
   pattern: /\.s[ac]ss$/
   _dependencyRegExp: /@import ['"](.*)['"]/g
+  sassExe = 'sass'
+  if global.process.platform is 'win32'
+    sassExe = 'sass.bat'
 
   constructor: (@config) ->
-    exec 'sass --version', (error, stdout, stderr) =>
+    exec sassExe + ' --version', (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
@@ -31,7 +34,7 @@ module.exports = class SassCompiler
     options.push '--compass' if @compass
     options.push '--scss' if /\.scss$/.test path
     execute = =>
-      sass = spawn 'sass', options
+      sass = spawn sassExe, options
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
