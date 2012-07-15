@@ -1,3 +1,7 @@
+# sass-brunch 1.3.1 (July 15, 2012)
+* Error is now thrown if sass wasn't found on system.
+* Fixed windows issues.
+
 # sass-brunch 1.3.0 (June 29, 2012)
 * Added node.js 0.8 and 0.9 support.
 * Package is now precompiled before every publishing to npm.
