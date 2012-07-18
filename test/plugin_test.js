@@ -47,9 +47,9 @@ describe('Plugin', function() {
     ";
 
     var expected = [
-      sysPath.join('app', 'styles', '_valid1.scss'),
-      sysPath.join('app', 'styles', '_valid2.scss'),
-      sysPath.join('vendor', 'styles', '_valid3.scss')
+      sysPath.join('app', 'styles', 'valid1.scss'),
+      sysPath.join('app', 'styles', 'valid2.scss'),
+      sysPath.join('vendor', 'styles', 'valid3.scss')
     ];
 
     plugin.getDependencies(content, fileName, function(error, dependencies) {

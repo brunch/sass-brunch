@@ -6,13 +6,11 @@ module.exports = class SassCompiler
   type: 'stylesheet'
   extension: 'scss'
   pattern: /\.s[ac]ss$/
-  _dependencyRegExp: /@import ['"](.*)['"]/g
-  sassExe = 'sass'
-  if global.process.platform is 'win32'
-    sassExe = 'sass.bat'
+  _dependencyRegExp: /^ *@import ['"](.*)['"]/
+  _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
 
   constructor: (@config) ->
-    exec sassExe + ' --version', (error, stdout, stderr) =>
+    exec "#{@_bin} --version", (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
@@ -34,7 +32,7 @@ module.exports = class SassCompiler
     options.push '--compass' if @compass
     options.push '--scss' if /\.scss$/.test path
     execute = =>
-      sass = spawn sassExe, options
+      sass = spawn @_bin, options
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
@@ -52,20 +50,26 @@ module.exports = class SassCompiler
     do delay
 
   getDependencies: (data, path, callback) =>
-    paths = data.match(@_dependencyRegExp) or []
     parent = sysPath.dirname path
-    dependencies = paths
+    dependencies = data
+      .split('\n')
+      .map (line) =>
+        line.match(@_dependencyRegExp)
+      .filter (match) =>
+        match?.length > 0
+      .map (match) =>
+        match[1]
+      .filter (path) =>
+        !!path and path isnt 'compass'
       .map (path) =>
-        res = @_dependencyRegExp.exec(path)
-        @_dependencyRegExp.lastIndex = 0
-        (res or [])[1]
-      .filter((path) => !!path and path.indexOf('compass') isnt 0)
-      .map (path) =>
-        path = path.replace(/(\w+\.|\w+$)/, '_$1')
         if sysPath.extname(path) isnt ".#{@extension}"
-          "#{path}.#{@extension}"
+          path + ".#{@extension}"
         else
           path
-      .map(sysPath.join.bind(null, parent))
+      .map (path) =>
+        if path.charAt(0) is '/'
+          sysPath.join @config.paths.root, path[1..]
+        else
+          sysPath.join parent, path
     process.nextTick =>
       callback null, dependencies
