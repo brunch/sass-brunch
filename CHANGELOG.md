@@ -1,3 +1,6 @@
+# sass-brunch 1.4.0 (July 15, 2012)
+* Added support for absolute paths.
+
 # sass-brunch 1.3.1 (July 15, 2012)
 * Error is now thrown if sass wasn't found on system.
 * Fixed windows issues.
