@@ -29,9 +29,9 @@ module.exports = class SassCompiler
       '--load-path', sysPath.dirname(path),
       '--no-cache',
     ]
-    options.push '--compass' if @compass
     options.push '--scss' if /\.scss$/.test path
     execute = =>
+      options.push '--compass' if @compass
       sass = spawn @_bin, options
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
