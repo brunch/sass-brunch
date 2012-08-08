@@ -38,8 +38,11 @@ module.exports = class SassCompiler
       sass.stderr.on 'data', (buffer) ->
         error ?= ''
         error += buffer.toString()
-      sass.on 'exit', (code) ->
-        callback error, result
+      onExit = (code) -> callback error, result
+      if process.version.slice(0, 4) is 'v0.6'
+        sass.on 'exit', onExit
+      else
+        sass.on 'close', onExit
       sass.stdin.end data
 
     delay = =>
