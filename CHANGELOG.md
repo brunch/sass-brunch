@@ -1,3 +1,7 @@
+# sass-brunch 1.4.1 (August 08, 2012)
+* Fixed node.js 0.8 compatibility.
+* Fixed compass bug.
+
 # sass-brunch 1.4.0 (July 15, 2012)
 * Added support for absolute paths.
 
