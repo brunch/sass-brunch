@@ -1,3 +1,7 @@
+# sass-brunch 1.4.2 (November 26, 2012)
+* The plugin will now output debug information unless config.minify
+is enabled.
+
 # sass-brunch 1.4.1 (August 08, 2012)
 * Fixed node.js 0.8 compatibility.
 * Fixed compass bug.
