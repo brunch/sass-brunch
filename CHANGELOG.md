@@ -1,3 +1,6 @@
+# sass-brunch 1.5.0 (January 13, 2012)
+* Improved installation process.
+
 # sass-brunch 1.4.2 (November 26, 2012)
 * The plugin will now output debug information unless config.minify
 is enabled.
