@@ -64,7 +64,7 @@ module.exports = class SassCompiler
       .map (match) =>
         match[1]
       .filter (path) =>
-        !!path and !path.match(/^compass/)
+        !!path and not /^compass/.test path
       .map (path) =>
         if sysPath.extname(path) isnt ".#{@extension}"
           path + ".#{@extension}"
@@ -78,11 +78,13 @@ module.exports = class SassCompiler
 
     # Sass convention is that @import "rounded"; will load "_rounded.scss"
     # http://sass-lang.com/tutorial.html#id1
-    for path in dependencies
+    allDependencies = []
+    dependencies.forEach (path) ->
       dir = sysPath.dirname(path)
       file = sysPath.basename(path)
-      if file[0] isnt "_"
-        dependencies.push sysPath.join(dir, "_#{file}")
+      dependencies.push path
+      if file[0] isnt '_'
+        allDependencies.push sysPath.join dir, "_#{file}"
 
     process.nextTick =>
       callback null, dependencies
