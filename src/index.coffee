@@ -78,13 +78,13 @@ module.exports = class SassCompiler
 
     # Sass convention is that @import "rounded"; will load "_rounded.scss"
     # http://sass-lang.com/tutorial.html#id1
-    allDependencies = []
+    deps = []
     dependencies.forEach (path) ->
       dir = sysPath.dirname(path)
       file = sysPath.basename(path)
-      dependencies.push path
+      deps.push path
       if file[0] isnt '_'
-        allDependencies.push sysPath.join dir, "_#{file}"
+        deps.push sysPath.join dir, "_#{file}"
 
     process.nextTick =>
-      callback null, dependencies
+      callback null, deps
