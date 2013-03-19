@@ -1,6 +1,6 @@
 {
   "name": "sass-brunch",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Adds Sass support to brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
@@ -12,15 +12,9 @@
   "scripts": {
     "prepublish": "node setup.js prepublish",
     "postpublish": "node setup.js postpublish",
-    "test": "node setup.js test",
-    "postinstall": "node setup.js postinstall"
+    "test": "node setup.js test"
   },
-  "engines": {
-    "node": "~0.6.10 || 0.8 || 0.9"
-  },
-  "dependencies": {
-    "coffee-script": "1.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "1.8.1",
     "chai": "1.4.2"
