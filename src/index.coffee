@@ -29,7 +29,11 @@ module.exports = class SassCompiler
       '--load-path', sysPath.dirname(path),
       '--no-cache',
     ]
-    options.push '--debug-info' unless @config.minify
+    unless @config.minify
+      if @config.plugins?.sass?.debug == 'comments'
+        options.push '--line-comments'
+      else
+        options.push '--debug-info'
     options.push '--scss' if /\.scss$/.test path
     execute = =>
       options.push '--compass' if @compass
