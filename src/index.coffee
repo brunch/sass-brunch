@@ -29,8 +29,8 @@ module.exports = class SassCompiler
       '--load-path', sysPath.dirname(path),
       '--no-cache',
     ]
-    unless @config.minify
-      if @config.plugins?.sass?.debug == 'comments'
+    unless @config.optimize
+      if @config.plugins?.sass?.debug is 'comments'
         options.push '--line-comments'
       else
         options.push '--debug-info'
