@@ -1,3 +1,6 @@
+# sass-brunch 1.5.2 (23 April 2013)
+* Added ability to print line number refs via `plugins.sass.debug = 'comments'`
+
 # sass-brunch 1.5.1 (19 March 2013)
 * Added node 0.10 support, removed coffee-script dependency.
 
