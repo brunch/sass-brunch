@@ -14,8 +14,8 @@ Or, do manual install:
 
 ### Options
 Print line number references as comments instead of sass's default FireSass fake media query:
-```
-config:
+```coffeescript
+config =
   plugins:
     sass:
       debug: 'comments'
