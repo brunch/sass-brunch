@@ -22,6 +22,15 @@ config =
 ```
 To include the source files' name/path in either debug mode, create a parent file that `@include` your actual sass/scss source. Make sure the source files are renamed to start with an underscore (`_file.scss`), or otherwise exclude them from the build so they don't get double-included.
 
+Use sass/compass installed in custom location:
+```coffeescript
+config =
+  plugins:
+    sass:
+      gem_home: './gems'
+```
+This could be useful for the environment which doesn't allow to install gems globally, such as CI server.
+
 ## License
 
 The MIT License (MIT)
