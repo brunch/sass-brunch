@@ -8,13 +8,24 @@ module.exports = class SassCompiler
   pattern: /\.s[ac]ss$/
   _dependencyRegExp: /^ *@import ['"](.*)['"]/
   _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
+  _compass_bin: 'compass'
 
   constructor: (@config) ->
-    exec "#{@_bin} --version", (error, stdout, stderr) =>
+    @gem_home = @config.plugins?.sass?.gem_home
+
+    # Use copied process.env to not modify original
+    @env = ([k, v] for k, v of process.env).reduce (a={}, [k,v]) -> a[k] = v; a
+
+    if @gem_home
+      @env['GEM_HOME'] = config.plugins.sass.gem_home
+      @_bin = @config.plugins.sass.gem_home + '/bin/sass'
+      @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
+
+    exec "#{@_bin} --version", {env: @env}, (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
-    exec 'compass --version', (error, stdout, stderr) =>
+    exec "#{@_compass_bin} --version", {env: @env}, (error, stdout, stderr) =>
       @compass = not error
 
   compile: (data, path, callback) ->
@@ -35,7 +46,7 @@ module.exports = class SassCompiler
     options.push '--scss' if /\.scss$/.test path
     execute = =>
       options.push '--compass' if @compass
-      sass = spawn @_bin, options
+      sass = spawn @_bin, options, {env: @env}
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
