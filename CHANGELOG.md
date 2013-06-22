@@ -1,3 +1,6 @@
+# sass-brunch 1.6.0 (22 June 2013)
+* Added ENV_HOME support.
+
 # sass-brunch 1.5.2 (23 April 2013)
 * Added ability to print line number refs via `plugins.sass.debug = 'comments'`
 
