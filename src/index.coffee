@@ -13,19 +13,22 @@ module.exports = class SassCompiler
   constructor: (@config) ->
     @gem_home = @config.plugins?.sass?.gem_home
 
-    # Use copied process.env to not modify original
-    @env = ([k, v] for k, v of process.env).reduce (a={}, [k,v]) -> a[k] = v; a
+    @mod_env = {}
 
     if @gem_home
-      @env['GEM_HOME'] = config.plugins.sass.gem_home
+      # Use copied process.env to not modify original
+      env = ([k, v] for k, v of process.env).reduce (a={}, [k,v]) -> a[k] = v; a
+      env['GEM_HOME'] = config.plugins.sass.gem_home
+      @mod_env = {env}
       @_bin = @config.plugins.sass.gem_home + '/bin/sass'
       @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
 
-    exec "#{@_bin} --version", {env: @env}, (error, stdout, stderr) =>
+
+    exec "#{@_bin} --version", @mod_env, (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
-    exec "#{@_compass_bin} --version", {env: @env}, (error, stdout, stderr) =>
+    exec "#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
       @compass = not error
 
   compile: (data, path, callback) ->
@@ -46,7 +49,7 @@ module.exports = class SassCompiler
     options.push '--scss' if /\.scss$/.test path
     execute = =>
       options.push '--compass' if @compass
-      sass = spawn @_bin, options, {env: @env}
+      sass = spawn @_bin, options, @mod_env
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
