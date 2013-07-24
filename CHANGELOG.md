@@ -1,3 +1,6 @@
+# sass-brunch 1.6.1 (24 July 2013)
+* Fixed ENV bugs.
+
 # sass-brunch 1.6.0 (22 June 2013)
 * Added ENV_HOME support.
 
