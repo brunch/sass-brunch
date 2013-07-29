@@ -1,12 +1,12 @@
 {spawn, exec} = require 'child_process'
 sysPath = require 'path'
+progeny = require 'progeny'
 
 module.exports = class SassCompiler
   brunchPlugin: yes
   type: 'stylesheet'
   extension: 'scss'
   pattern: /\.s[ac]ss$/
-  _dependencyRegExp: /^ *@import ['"](.*)['"]/
   _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
   _compass_bin: 'compass'
 
@@ -30,6 +30,8 @@ module.exports = class SassCompiler
         console.error "Execute `gem install sass`"
     exec "#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
       @compass = not error
+
+    @getDependencies = progeny()
 
   compile: (data, path, callback) ->
     result = ''
@@ -68,39 +70,3 @@ module.exports = class SassCompiler
       else
         setTimeout delay, 100
     do delay
-
-  getDependencies: (data, path, callback) =>
-    parent = sysPath.dirname path
-    dependencies = data
-      .split('\n')
-      .map (line) =>
-        line.match(@_dependencyRegExp)
-      .filter (match) =>
-        match?.length > 0
-      .map (match) =>
-        match[1]
-      .filter (path) =>
-        !!path and not /^compass/.test path
-      .map (path) =>
-        if sysPath.extname(path) isnt ".#{@extension}"
-          path + ".#{@extension}"
-        else
-          path
-      .map (path) =>
-        if path.charAt(0) is '/'
-          sysPath.join @config.paths.root, path[1..]
-        else
-          sysPath.join parent, path
-
-    # Sass convention is that @import "rounded"; will load "_rounded.scss"
-    # http://sass-lang.com/tutorial.html#id1
-    deps = []
-    dependencies.forEach (path) ->
-      dir = sysPath.dirname(path)
-      file = sysPath.basename(path)
-      deps.push path
-      if file[0] isnt '_'
-        deps.push sysPath.join dir, "_#{file}"
-
-    process.nextTick =>
-      callback null, deps

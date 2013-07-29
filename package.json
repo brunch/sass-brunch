@@ -13,7 +13,9 @@
     "prepublish": "rm -rf lib && coffee --bare --output lib/ src/",
     "test": "node_modules/.bin/mocha --require test/common.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "progeny": "~0.1.1"
+  },
   "devDependencies": {
     "mocha": "1.11.0",
     "chai": "1.7.0"
