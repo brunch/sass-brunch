@@ -31,7 +31,7 @@ module.exports = class SassCompiler
     exec "#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
       @compass = not error
 
-    @getDependencies = progeny()
+    @getDependencies = progeny rootPath: @config.paths.root
 
   compile: (data, path, callback) ->
     result = ''
