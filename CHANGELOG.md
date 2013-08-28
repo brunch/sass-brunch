@@ -1,3 +1,6 @@
+# sass-brunch 1.7.0 (28 August 2013)
+* New way of parsing dependent files.
+
 # sass-brunch 1.6.1 (24 July 2013)
 * Fixed ENV bugs.
 
