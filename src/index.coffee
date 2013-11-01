@@ -48,6 +48,8 @@ module.exports = class SassCompiler
     unless @config.optimize
       hasComments = @config.plugins?.sass?.debug is 'comments'
       options.push (if hasComments then '--line-comments' else '--debug-info')
+    options.push.apply(options, @config.plugins.sass.options) if @config.plugins?.sass?.options?
+
     options.push '--scss' if /\.scss$/.test path
     execute = =>
       options.push '--compass' if @compass
