@@ -64,7 +64,10 @@ module.exports = class SassCompiler
         sass.on 'exit', onExit
       else
         sass.on 'close', onExit
-      sass.stdin.end data
+      if sass.stdin.write data
+        sass.stdin.end()
+      else
+        sass.stdin.on 'drain', -> sass.stdin.end()
 
     delay = =>
       if @compass?
