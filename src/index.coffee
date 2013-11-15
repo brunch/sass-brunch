@@ -24,7 +24,7 @@ module.exports = class SassCompiler
       @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
 
 
-    if config.plugins.sass.useBundler
+    if @config.plugins.sass.useBundler
       @_bin = "bundle exec #{@_bin}"
       @_compass_bin = "bundle exec #{@_compass_bin}"
 
