@@ -1,3 +1,8 @@
+# sass-brunch 1.7.1 (15 November 2013)
+* Added `options` config param to allow any sass CLI options to be set.
+* Added `useBundler` option which uses `bundle exec sass` to compile.
+* Fixed bug with buffering very large source files.
+
 # sass-brunch 1.7.0 (28 August 2013)
 * New way of parsing dependent files.
 
