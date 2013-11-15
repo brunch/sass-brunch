@@ -24,6 +24,10 @@ module.exports = class SassCompiler
       @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
 
 
+    if config.plugins.sass.useBundler
+      @_bin = "bundle exec #{@_bin}"
+      @_compass_bin = "bundle exec #{@_compass_bin}"
+
     exec "#{@_bin} --version", @mod_env, (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
