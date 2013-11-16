@@ -25,14 +25,17 @@ module.exports = class SassCompiler
 
 
     if @config.plugins.sass.useBundler
-      @_bin = "bundle exec #{@_bin}"
-      @_compass_bin = "bundle exec #{@_compass_bin}"
+      bin_cmd = "bundle exec #{@_bin}"
+      compass_bin_cmd = "bundle exec #{@_compass_bin}"
+    else
+      bin_cmd = @_bin
+      compass_bin_cmd = @_compass_bin
 
-    exec "#{@_bin} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{bin_cmd} --version", @mod_env, (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
-    exec "#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{compass_bin_cmd} --version", @mod_env, (error, stdout, stderr) =>
       @compass = not error
 
     @getDependencies = progeny rootPath: @config.paths.root
@@ -57,7 +60,13 @@ module.exports = class SassCompiler
     options.push '--scss' if /\.scss$/.test path
     execute = =>
       options.push '--compass' if @compass
-      sass = spawn @_bin, options, @mod_env
+
+      if @config.plugins.sass.useBundler
+        bin = 'bundle'
+        options.unshift('exec', 'sass')
+      else bin = @_bin
+
+      sass = spawn bin, options, @mod_env
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
