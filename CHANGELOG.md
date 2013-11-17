@@ -1,6 +1,7 @@
 # sass-brunch 1.7.1 (15 November 2013)
 * Added `options` config param to allow any sass CLI options to be set.
-* Added `useBundler` option which uses `bundle exec sass` to compile.
+* Added `useBundler` option which uses `bundle exec sass` to compile. 
+  _However, the feature does not yet work properly with the 1.7.1 release._
 * Fixed bug with buffering very large source files.
 
 # sass-brunch 1.7.0 (28 August 2013)
