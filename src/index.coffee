@@ -10,30 +10,31 @@ module.exports = class SassCompiler
   _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
   _compass_bin: 'compass'
 
-  constructor: (@config) ->
-    @gem_home = @config.plugins?.sass?.gem_home
+  constructor: (@brunchConfig) ->
+    @conf = @brunchConfig.plugins?.sass
 
+    @gem_home = @conf?.gem_home
     @mod_env = {}
 
     if @gem_home
       # Use copied process.env to not modify original
       env = ([k, v] for k, v of process.env).reduce (a={}, [k,v]) -> a[k] = v; a
-      env['GEM_HOME'] = config.plugins.sass.gem_home
+      env['GEM_HOME'] = @gem_home
       @mod_env = {env}
-      @_bin = @config.plugins.sass.gem_home + '/bin/sass'
-      @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
+      @_bin = "#{@gem_home}/bin/sass"
+      @_compass_bin = "#{@gem_home}/bin/compass"
 
-    @bundler = @config.plugins?.sass?.useBundler
+    @bundler = @conf?.useBundler
     prefix = if @bundler then 'bundle exec ' else ''
 
-    exec "#{prefix}#{@_bin} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{prefix}#{@_bin} --version", @mod_env, (error) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
-    exec "#{prefix}#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{prefix}#{@_compass_bin} --version", @mod_env, (error) =>
       @compass = not error
 
-    @getDependencies = progeny rootPath: @config.paths.root
+    @getDependencies = progeny rootPath: @brunchConfig.paths.root
 
   compile: (data, path, callback) ->
     result = ''
@@ -44,19 +45,19 @@ module.exports = class SassCompiler
     cmd = [
       'sass'
       '--stdin'
-      '--load-path', @config.paths.root
-      '--load-path', sysPath.dirname(path)
+      '--load-path', @brunchConfig.paths.root
+      '--load-path', sysPath.dirname path
       '--no-cache'
     ]
     cmd.unshift 'bundle', 'exec' if @bundler
 
-    unless @config.optimize
-      hasComments = @config.plugins?.sass?.debug is 'comments'
-      cmd.push (if hasComments then '--line-comments' else '--debug-info')
+    unless @brunchConfig.optimize
+      hasComments = @conf?.debug is 'comments'
+      cmd.push if hasComments then '--line-comments' else '--debug-info'
 
     cmd.push '--scss' if /\.scss$/.test path
     cmd.push '--compass' if @compass
-    cmd.push.apply(cmd, @config.plugins.sass.options) if @config.plugins?.sass?.options?
+    cmd.push.apply(cmd, @conf.options) if @conf?.options?
 
     execute = =>
       sass = spawn cmd[0], cmd.slice(1), @mod_env
