@@ -23,19 +23,14 @@ module.exports = class SassCompiler
       @_bin = @config.plugins.sass.gem_home + '/bin/sass'
       @_compass_bin = @config.plugins.sass.gem_home + '/bin/compass'
 
+    @bundler = @config.plugins?.sass?.useBundler
+    prefix = if @bundler then 'bundle exec ' else ''
 
-    if @config.plugins?.sass?.useBundler
-      bin_cmd = "bundle exec #{@_bin}"
-      compass_bin_cmd = "bundle exec #{@_compass_bin}"
-    else
-      bin_cmd = @_bin
-      compass_bin_cmd = @_compass_bin
-
-    exec "#{bin_cmd} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{prefix}#{@_bin} --version", @mod_env, (error, stdout, stderr) =>
       if error
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
-    exec "#{compass_bin_cmd} --version", @mod_env, (error, stdout, stderr) =>
+    exec "#{prefix}#{@_compass_bin} --version", @mod_env, (error, stdout, stderr) =>
       @compass = not error
 
     @getDependencies = progeny rootPath: @config.paths.root
@@ -46,27 +41,25 @@ module.exports = class SassCompiler
     # Warning: spawning child processes is a quite slow operation.
     # On my machine, it's ~200ms, when compiling stylus via node.js
     # without spawning child process is ~20ms.
-    options = [
-      '--stdin',
-      '--load-path', @config.paths.root,
-      '--load-path', sysPath.dirname(path),
-      '--no-cache',
+    cmd = [
+      'sass'
+      '--stdin'
+      '--load-path', @config.paths.root
+      '--load-path', sysPath.dirname(path)
+      '--no-cache'
     ]
+    cmd.unshift 'bundle', 'exec' if @bundler
+
     unless @config.optimize
       hasComments = @config.plugins?.sass?.debug is 'comments'
-      options.push (if hasComments then '--line-comments' else '--debug-info')
-    options.push.apply(options, @config.plugins.sass.options) if @config.plugins?.sass?.options?
+      cmd.push (if hasComments then '--line-comments' else '--debug-info')
 
-    options.push '--scss' if /\.scss$/.test path
+    cmd.push '--scss' if /\.scss$/.test path
+    cmd.push '--compass' if @compass
+    cmd.push.apply(cmd, @config.plugins.sass.options) if @config.plugins?.sass?.options?
+
     execute = =>
-      options.push '--compass' if @compass
-
-      if @config.plugins?.sass?.useBundler
-        bin = 'bundle'
-        options.unshift('exec', 'sass')
-      else bin = @_bin
-
-      sass = spawn bin, options, @mod_env
+      sass = spawn cmd[0], cmd.slice(1), @mod_env
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
       sass.stderr.on 'data', (buffer) ->
