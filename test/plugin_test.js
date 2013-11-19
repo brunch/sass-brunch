@@ -1,6 +1,6 @@
 var sysPath = require('path');
 
-describe('Plugin', function() {
+describe('sass-brunch plugin', function() {
   var plugin;
   var fileName = 'app/styles/style.scss';
 
@@ -26,7 +26,7 @@ describe('Plugin', function() {
       done();
     });
   });
-  
+
   it('should compile and produce valid result for sass', function(done) {
     var content = '.test\n  border-color: #fff';
     var expected = '.test {\n  border-color: white; }\n';
@@ -49,7 +49,16 @@ describe('Plugin', function() {
     var expected = [
       sysPath.join('app', 'styles', 'valid1.scss'),
       sysPath.join('app', 'styles', 'valid2.scss'),
-      sysPath.join('vendor', 'styles', 'valid3.scss')
+      sysPath.join('vendor', 'styles', 'valid3.scss'),
+      sysPath.join('app', 'styles', '_valid1.scss'),
+      sysPath.join('app', 'styles', '_valid2.scss'),
+      sysPath.join('vendor', 'styles', '_valid3.scss'),
+      sysPath.join('app', 'styles', 'valid1.sass'),
+      sysPath.join('app', 'styles', 'valid2.sass'),
+      sysPath.join('vendor', 'styles', 'valid3.sass'),
+      sysPath.join('app', 'styles', '_valid1.sass'),
+      sysPath.join('app', 'styles', '_valid2.sass'),
+      sysPath.join('vendor', 'styles', '_valid3.sass')
     ];
 
     plugin.getDependencies(content, fileName, function(error, dependencies) {
