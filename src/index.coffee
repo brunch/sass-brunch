@@ -51,7 +51,7 @@ module.exports = class SassCompiler
     ]
     cmd.unshift 'bundle', 'exec' if @bundler
 
-    unless @brunchConfig.optimize
+    if @conf?.debug in ['comments', 'debug'] and not @brunchConfig.optimize
       hasComments = @conf?.debug is 'comments'
       cmd.push if hasComments then '--line-comments' else '--debug-info'
 
