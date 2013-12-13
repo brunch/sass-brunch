@@ -1,14 +1,14 @@
 {spawn, exec} = require 'child_process'
 sysPath = require 'path'
 progeny = require 'progeny'
-Q = require 'q'
+P = require 'p-promise'
 
 module.exports = class SassCompiler
   brunchPlugin: yes
   type: 'stylesheet'
   extension: 'scss'
   pattern: /\.s[ac]ss$/
-  compass: Q.defer()
+  compass: P.defer()
   _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
   _compass_bin: 'compass'
 
@@ -39,7 +39,7 @@ module.exports = class SassCompiler
     @getDependencies = progeny rootPath: @brunchConfig.paths.root
 
   compile: (data, path, callback) ->
-    Q.when @compass, (compassExists) =>
+    @compass.promise.then (compassExists) =>
       @deferredCompile data, path, callback, compassExists
 
   deferredCompile: (data, path, callback, compassExists) ->

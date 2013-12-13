@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "progeny": "~0.1.1",
-    "q": "~0.9.7"
+    "p-promise": "~0.2.5"
   },
   "devDependencies": {
     "mocha": "1.11.0",
