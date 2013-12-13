@@ -14,7 +14,8 @@
     "test": "node_modules/.bin/mocha --require test/common.js"
   },
   "dependencies": {
-    "progeny": "~0.1.1"
+    "progeny": "~0.1.1",
+    "p-promise": "~0.2.5"
   },
   "devDependencies": {
     "mocha": "1.11.0",

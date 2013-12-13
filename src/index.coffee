@@ -1,12 +1,14 @@
 {spawn, exec} = require 'child_process'
 sysPath = require 'path'
 progeny = require 'progeny'
+P = require 'p-promise'
 
 module.exports = class SassCompiler
   brunchPlugin: yes
   type: 'stylesheet'
   extension: 'scss'
   pattern: /\.s[ac]ss$/
+  compass: P.defer()
   _bin: if process.platform is 'win32' then 'sass.bat' else 'sass'
   _compass_bin: 'compass'
 
@@ -32,11 +34,15 @@ module.exports = class SassCompiler
         console.error "You need to have Sass on your system"
         console.error "Execute `gem install sass`"
     exec "#{prefix}#{@_compass_bin} --version", @mod_env, (error) =>
-      @compass = not error
+      @compass.resolve not error
 
     @getDependencies = progeny rootPath: @brunchConfig.paths.root
 
   compile: (data, path, callback) ->
+    @compass.promise.then (compassExists) =>
+      @deferredCompile data, path, callback, compassExists
+
+  deferredCompile: (data, path, callback, compassExists) ->
     result = ''
     error = null
     # Warning: spawning child processes is a quite slow operation.
@@ -56,7 +62,7 @@ module.exports = class SassCompiler
       cmd.push if hasComments then '--line-comments' else '--debug-info'
 
     cmd.push '--scss' if /\.scss$/.test path
-    cmd.push '--compass' if @compass
+    cmd.push '--compass' if compassExists
     cmd.push.apply(cmd, @conf.options) if @conf?.options?
 
     execute = =>
@@ -82,7 +88,7 @@ module.exports = class SassCompiler
         sass.stdin.on 'drain', -> sass.stdin.end()
 
     delay = =>
-      if @compass?
+      if compassExists?
         execute()
       else
         setTimeout delay, 100
