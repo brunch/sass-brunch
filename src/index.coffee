@@ -60,6 +60,11 @@ module.exports = class SassCompiler
     cmd.push.apply(cmd, @conf.options) if @conf?.options?
 
     execute = =>
+      # windows is kind of a jerk sometimes.
+      if process.platform is 'win32'
+        cmd = ['cmd', '/c', '"' + cmd[0] + '"'].concat cmd.slice 1
+        @mod_env.windowsVerbatimArguments = true
+
       sass = spawn cmd[0], cmd.slice(1), @mod_env
       sass.stdout.on 'data', (buffer) ->
         result += buffer.toString()
