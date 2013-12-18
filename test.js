@@ -1,3 +1,5 @@
+var expect = require('chai').expect;
+var Plugin = require('./');
 var sysPath = require('path');
 
 describe('sass-brunch plugin', function() {
@@ -5,7 +7,15 @@ describe('sass-brunch plugin', function() {
   var fileName = 'app/styles/style.scss';
 
   beforeEach(function() {
-    plugin = new Plugin({paths: {root: '.'}});
+    var config = Object.freeze({
+      paths: {root: '.'}
+      // ,plugins: {
+      //   sass: {
+      //     mode: 'ruby'
+      //   }
+      // }
+    });
+    plugin = new Plugin(config);
   });
 
   it('should be an object', function() {
@@ -17,8 +27,8 @@ describe('sass-brunch plugin', function() {
   });
 
   it('should compile and produce valid result for scss', function(done) {
-    var content = '.test {\n  border-color: #fff; }\n';
-    var expected = '.test {\n  border-color: #fff; }\n';
+    var content = '$a: 5px; .test {\n  border-radius: $a; }\n';
+    var expected = '.test {\n  border-radius: 5px; }\n';
 
     plugin.compile(content, 'file.scss', function(error, data) {
       expect(error).not.to.be.ok;
@@ -28,8 +38,8 @@ describe('sass-brunch plugin', function() {
   });
 
   it('should compile and produce valid result for sass', function(done) {
-    var content = '.test\n  border-color: #fff';
-    var expected = '.test {\n  border-color: white; }\n';
+    var content = '$a: 5px\n.test\n  border-radius: $a';
+    var expected = '.test {\n  border-radius: 5px; }\n';
 
     plugin.compile(content, 'file.sass', function(error, data) {
       expect(error).not.to.be.ok;
@@ -40,7 +50,6 @@ describe('sass-brunch plugin', function() {
 
   it('should output valid deps', function(done) {
     var content = "\
-    @import _invalid\n\
     @import \'valid1\';\n\
     @import \"./valid2.scss\";\n\
     @import \'../../vendor/styles/valid3\';\n\
