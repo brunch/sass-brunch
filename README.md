@@ -13,16 +13,28 @@ Or, do manual install:
 `"sass-brunch": "git+ssh://git@github.com:brunch/sass-brunch.git"`.
 
 ### Options
+Force the plugin to always use Ruby sass instead of C's libsass:
+
+```coffeescript
+config =
+  plugins:
+    sass:
+      mode: 'ruby'
+```
+
 Print line number references as comments or sass's FireSass fake media query:
+
 ```coffeescript
 config =
   plugins:
     sass:
       debug: 'comments' # or set to 'debug' for the FireSass-style output
 ```
+
 To include the source files' name/path in either debug mode, create a parent file that `@include` your actual sass/scss source. Make sure the source files are renamed to start with an underscore (`_file.scss`), or otherwise exclude them from the build so they don't get double-included.
 
 To pass any other options to sass:
+
 ```coffeescript
 config =
   plugins:
