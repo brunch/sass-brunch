@@ -9,7 +9,6 @@
     "type": "git",
     "url": "git@github.com:brunch/sass-brunch.git"
   },
-  "main": "./lib/index",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
