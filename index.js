@@ -136,7 +136,8 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
 };
 
 SassCompiler.prototype.compile = function(data, path, callback) {
-  var fileUsesRuby = sassRe.test(path) || compassRe.test(data);
+  this.compass = compassRe.test(data);
+  var fileUsesRuby = sassRe.test(path) || this.compass;
   if (this.mode === 'ruby' || (!this.mode && fileUsesRuby)) {
     this._rubyCompile(data, path, callback);
   } else {
