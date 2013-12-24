@@ -23,6 +23,10 @@ function SassCompiler(cfg) {
   this.getDependencies = progeny({
     rootPath: this.rootPath
   });
+  this.seekCompass = progeny({
+    rootPath: this.rootPath,
+    exclusion: ''
+  });
   this.gem_home = this.config.gem_home;
   this.env = {};
   if (this.gem_home) {
@@ -136,13 +140,18 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
 };
 
 SassCompiler.prototype.compile = function(data, path, callback) {
-  this.compass = compassRe.test(data);
-  var fileUsesRuby = sassRe.test(path) || this.compass;
-  if (this.mode === 'ruby' || (!this.mode && fileUsesRuby)) {
-    this._rubyCompile(data, path, callback);
-  } else {
-    this._nativeCompile(data, path, callback);
-  }
+  this.seekCompass(data, path, (function (err, imports) {
+    if (err) callback(err);
+    this.compass = imports.some(function (depPath){
+      return compassRe.test(depPath);
+    });
+    var fileUsesRuby = sassRe.test(path) || this.compass;
+    if (this.mode === 'ruby' || (!this.mode && fileUsesRuby)) {
+      this._rubyCompile(data, path, callback);
+    } else {
+      this._nativeCompile(data, path, callback);
+    }
+  }).bind(this));
 };
 
 module.exports = SassCompiler;
