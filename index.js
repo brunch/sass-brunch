@@ -35,8 +35,8 @@ function SassCompiler(cfg) {
     this.env = {
       env: env
     };
-    this._bin = "" + this.gem_home + "/bin/sass";
-    this._compass_bin = "" + this.gem_home + "/bin/compass";
+    this._bin = this.gem_home + "/bin/" + this._bin;
+    this._compass_bin = this.gem_home + "/bin/" + this._compass_bin;
   }
   this.bundler = this.config.useBundler;
   this.prefix = this.bundler ? 'bundle exec ' : '';
@@ -52,8 +52,8 @@ SassCompiler.prototype._compass_bin = 'compass';
 SassCompiler.prototype._checkRuby = function() {
   var prefix = this.prefix;
   var env = this.env;
-  var sassCmd = "" + this.prefix + this._bin + " --version";
-  var compassCmd = "" + this.prefix + this._compass_bin + " --version";
+  var sassCmd = this.prefix + this._bin + " --version";
+  var compassCmd = this.prefix + this._compass_bin + " --version";
 
   var sassPromise = new Promise(function(resolve, reject) {
     exec(sassCmd, env, function(error) {
@@ -95,7 +95,7 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
   var result = '';
   var error = null;
   var cmd = [
-    'sass',
+    this._bin,
     '--stdin',
     '--load-path', this.rootPath,
     '--load-path', sysPath.dirname(path),
