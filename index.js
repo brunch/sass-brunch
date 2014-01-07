@@ -103,17 +103,17 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
   ];
   if (this.bundler) cmd.unshift('bundle', 'exec');
 
-  var debugMode = this.config.debug, hasComments;
-  if ((debugMode === 'comments' || debugMode === 'debug') && !this.optimize) {
-    hasComments = this.config.debug === 'comments';
-    cmd.push(hasComments ? '--line-comments' : '--debug-info');
-  }
-
-  if (!sassRe.test(path)) cmd.push('--scss');
-  if (this.compass) cmd.push('--compass');
-  if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
-
   this.rubyPromise.then((function() {
+    var debugMode = this.config.debug, hasComments;
+    if ((debugMode === 'comments' || debugMode === 'debug') && !this.optimize) {
+      hasComments = this.config.debug === 'comments';
+      cmd.push(hasComments ? '--line-comments' : '--debug-info');
+    }
+    
+    if (!sassRe.test(path)) cmd.push('--scss');
+    if (this.compass) cmd.push('--compass');
+    if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
+
     if (isWindows) {
       cmd = ['cmd', '/c', '"' + cmd[0] + '"'].concat(cmd.slice(1));
       this.env.windowsVerbatimArguments = true;
