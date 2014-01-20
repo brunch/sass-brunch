@@ -22,6 +22,15 @@ config =
       mode: 'ruby'
 ```
 
+Set additional include paths for libsass:
+```coffeescript
+config =
+  plugins:
+    sass:
+      options:
+        includePaths: ['bower_components/foundation/scss']
+```
+
 Print line number references as comments or sass's FireSass fake media query:
 
 ```coffeescript

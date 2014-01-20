@@ -76,6 +76,11 @@ SassCompiler.prototype._checkRuby = function() {
 };
 
 SassCompiler.prototype._nativeCompile = function(data, path, callback) {
+  var includePaths = [this.rootPath, sysPath.dirname(path)];
+  if (this.config.options != null && this.config.options.includePaths != null) {
+    includePaths.push.apply(includePaths, this.config.options.includePaths);
+  }
+
   libsass.render({
     data: data,
     success: (function(css) {
@@ -84,7 +89,7 @@ SassCompiler.prototype._nativeCompile = function(data, path, callback) {
     error: (function(error) {
       callback(error);
     }),
-    includePaths: [this.rootPath, sysPath.dirname(path)],
+    includePaths: includePaths,
     outputStyle: 'nested',
     sourceComments: !this.optimize
   });
@@ -109,7 +114,7 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
       hasComments = this.config.debug === 'comments';
       cmd.push(hasComments ? '--line-comments' : '--debug-info');
     }
-    
+
     if (!sassRe.test(path)) cmd.push('--scss');
     if (this.compass) cmd.push('--compass');
     if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
