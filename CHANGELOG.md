@@ -1,3 +1,9 @@
+# sass-brunch 1.8.0 (7 February 2014)
+* Uses node-sass when possible (no compass) for much faster compilation with no dependency on ruby gems
+* Added `include_paths` option
+* Fix issue with spawning child process on windows
+* Fix issue with custom `gem_home`
+
 # sass-brunch 1.7.2 (19 November 2013)
 * Fix `useBundler` option
 * Stop outputting debug info by default, make it opt-in
