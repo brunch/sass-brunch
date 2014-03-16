@@ -1,3 +1,6 @@
+# sass-brunch 1.8.1 (16 March 2014)
+* Update node-sass to ~0.8.3
+
 # sass-brunch 1.8.0 (7 February 2014)
 * Uses node-sass when possible (no compass) for much faster compilation with no dependency on ruby gems
 * Added `include_paths` option
