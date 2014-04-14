@@ -40,6 +40,10 @@ function SassCompiler(cfg) {
   }
   this.bundler = this.config.useBundler;
   this.prefix = this.bundler ? 'bundle exec ' : '';
+  if (this.config.options != null && this.config.options.includePaths != null) {
+    this.includePaths = this.config.options.includePaths;
+  }
+
 }
 
 SassCompiler.prototype.brunchPlugin = true;
@@ -75,13 +79,16 @@ SassCompiler.prototype._checkRuby = function() {
   this.rubyPromise = Promise.all([sassPromise, compassPromise]);
 };
 
-SassCompiler.prototype._nativeCompile = function(source, callback) {
-  var includePaths = [this.rootPath, sysPath.dirname(source.path)];
-  if (this.config.options != null && this.config.options.includePaths != null) {
-    includePaths.push.apply(includePaths, this.config.options.includePaths);
+SassCompiler.prototype._getIncludePaths = function(path) {
+  var includePaths = [this.rootPath, sysPath.dirname(path)];
+  if (Array.isArray(this.includePaths)) {
+    includePaths = includePaths.concat(this.includePaths);
   }
+  return includePaths;
+};
 
-  libsass.render({
+SassCompiler.prototype._nativeCompile = function(source, callback) {
+ libsass.render({
     data: source.data,
     success: (function(css) {
       callback(null, css);
@@ -89,7 +96,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
     error: (function(error) {
       callback(error);
     }),
-    includePaths: includePaths,
+    includePaths: this._getIncludePaths(source.path),
     outputStyle: 'nested',
     sourceComments: !this.optimize
   });
@@ -101,11 +108,16 @@ SassCompiler.prototype._rubyCompile = function(source, callback) {
   var error = null;
   var cmd = [
     this._bin,
-    '--stdin',
-    '--load-path', this.rootPath,
-    '--load-path', sysPath.dirname(source.path),
-    '--no-cache'
+    '--stdin'
   ];
+
+  var includePaths = this._getIncludePaths(source.path);
+  includePaths.forEach(function(path) {
+    cmd.push('--load-path');
+    cmd.push(path);
+  });
+  cmd.push("--no-cache");
+
   if (this.bundler) cmd.unshift('bundle', 'exec');
 
   this.rubyPromise.then((function() {

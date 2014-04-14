@@ -22,7 +22,7 @@ config =
       mode: 'ruby'
 ```
 
-Set additional include paths for libsass:
+Set additional include paths:
 ```coffeescript
 config =
   plugins:
