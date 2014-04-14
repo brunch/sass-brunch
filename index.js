@@ -75,14 +75,14 @@ SassCompiler.prototype._checkRuby = function() {
   this.rubyPromise = Promise.all([sassPromise, compassPromise]);
 };
 
-SassCompiler.prototype._nativeCompile = function(data, path, callback) {
-  var includePaths = [this.rootPath, sysPath.dirname(path)];
+SassCompiler.prototype._nativeCompile = function(source, callback) {
+  var includePaths = [this.rootPath, sysPath.dirname(source.path)];
   if (this.config.options != null && this.config.options.includePaths != null) {
     includePaths.push.apply(includePaths, this.config.options.includePaths);
   }
 
   libsass.render({
-    data: data,
+    data: source.data,
     success: (function(css) {
       callback(null, css);
     }),
@@ -95,7 +95,7 @@ SassCompiler.prototype._nativeCompile = function(data, path, callback) {
   });
 };
 
-SassCompiler.prototype._rubyCompile = function(data, path, callback) {
+SassCompiler.prototype._rubyCompile = function(source, callback) {
   if (this.rubyPromise == null) this._checkRuby();
   var result = '';
   var error = null;
@@ -103,7 +103,7 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
     this._bin,
     '--stdin',
     '--load-path', this.rootPath,
-    '--load-path', sysPath.dirname(path),
+    '--load-path', sysPath.dirname(source.path),
     '--no-cache'
   ];
   if (this.bundler) cmd.unshift('bundle', 'exec');
@@ -115,8 +115,8 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
       cmd.push(hasComments ? '--line-comments' : '--debug-info');
     }
 
-    if (!sassRe.test(path)) cmd.push('--scss');
-    if (this.compass) cmd.push('--compass');
+    if (!sassRe.test(source.path)) cmd.push('--scss');
+    if (source.compass && this.compass) cmd.push('--compass');
     if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
 
     if (isWindows) {
@@ -134,7 +134,7 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
     sass.on('close', function(code) {
       callback(error, result);
     });
-    if (sass.stdin.write(data)) {
+    if (sass.stdin.write(source.data)) {
       sass.stdin.end();
     } else {
       sass.stdin.on('drain', function() {
@@ -147,14 +147,21 @@ SassCompiler.prototype._rubyCompile = function(data, path, callback) {
 SassCompiler.prototype.compile = function(data, path, callback) {
   this.seekCompass(data, path, (function (err, imports) {
     if (err) callback(err);
-    this.compass = imports.some(function (depPath){
-      return compassRe.test(depPath);
-    });
-    var fileUsesRuby = sassRe.test(path) || this.compass;
+
+    var source = {
+      data: data,
+      path: path,
+      compass: imports.some(function (depPath){
+        return compassRe.test(depPath);
+      })
+    };
+
+    var fileUsesRuby = sassRe.test(path) || source.compass;
+
     if (this.mode === 'ruby' || (!this.mode && fileUsesRuby)) {
-      this._rubyCompile(data, path, callback);
+      this._rubyCompile(source, callback);
     } else {
-      this._nativeCompile(data, path, callback);
+      this._nativeCompile(source, callback);
     }
   }).bind(this));
 };
