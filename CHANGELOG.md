@@ -1,3 +1,8 @@
+# sass-brunch 1.8.2 (2 September 2014)
+* Update node-sass to ~0.9.3
+* Pass `includePaths` option to ruby compiler
+* Fix race condition with mixed compass/non-compass utilizing source files
+
 # sass-brunch 1.8.1 (16 March 2014)
 * Update node-sass to ~0.8.3
 
