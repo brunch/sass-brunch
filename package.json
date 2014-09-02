@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "progeny": "~0.1.1",
-    "node-sass": "~0.8.3",
+    "node-sass": "~0.9.3",
     "promise": "~3.2.0"
   },
   "devDependencies": {
