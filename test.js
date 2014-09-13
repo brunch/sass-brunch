@@ -76,4 +76,14 @@ describe('sass-brunch plugin', function() {
       done();
     });
   });
+
+  it('should return empty result for empty source', function(done) {
+    var content = '   \t\n';
+    var expected = '';
+    plugin.compile(content, 'file.scss', function(error, data) {
+      expect(error).not.to.be.ok;
+      expect(data).to.equal(expected)
+      done();
+    });
+  });
 });
