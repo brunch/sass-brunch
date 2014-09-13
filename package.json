@@ -13,7 +13,7 @@
     "test": "node_modules/.bin/mocha"
   },
   "dependencies": {
-    "progeny": "~0.1.1",
+    "progeny": "~0.2.1",
     "node-sass": "~0.9.3",
     "promise": "~3.2.0"
   },
