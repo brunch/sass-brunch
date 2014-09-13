@@ -1,3 +1,6 @@
+# sass-brunch 1.8.3 (13 September 2014)
+* Skip compiling empty source files because of possible libsass bug
+
 # sass-brunch 1.8.2 (2 September 2014)
 * Update node-sass to ~0.9.3
 * Pass `includePaths` option to ruby compiler
