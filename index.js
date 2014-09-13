@@ -116,7 +116,7 @@ SassCompiler.prototype._rubyCompile = function(source, callback) {
     cmd.push('--load-path');
     cmd.push(path);
   });
-  cmd.push("--no-cache");
+  if (!this.config.allowCache) cmd.push("--no-cache");
 
   if (this.bundler) cmd.unshift('bundle', 'exec');
 
