@@ -1,4 +1,4 @@
-# sass-brunch 1.8.4
+# sass-brunch 1.8.4 (1 October 2014)
 * Add `allowCache` option to allow the ruby gem's default cache behavior
 
 # sass-brunch 1.8.3 (13 September 2014)
