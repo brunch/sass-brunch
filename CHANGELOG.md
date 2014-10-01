@@ -1,3 +1,6 @@
+# sass-brunch 1.8.4
+* Add `allowCache` option to allow the ruby gem's default cache behavior
+
 # sass-brunch 1.8.3 (13 September 2014)
 * Skip compiling empty source files because of possible libsass bug
 

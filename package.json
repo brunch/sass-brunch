@@ -1,16 +1,24 @@
 {
   "name": "sass-brunch",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Adds Sass support to brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
-  "keywords": ["brunchplugin", "sass"],
+  "keywords": [
+    "brunch",
+    "brunch-plugin",
+    "brunch-compiler",
+    "sass",
+    "scss",
+    "libsass",
+    "node-sass"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:brunch/sass-brunch.git"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha"
+    "test": "mocha"
   },
   "dependencies": {
     "progeny": "~0.2.1",
