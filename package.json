@@ -23,7 +23,7 @@
   "dependencies": {
     "progeny": "~0.4.0",
     "node-sass": "~0.9.3",
-    "promise": "~3.2.0"
+    "promise": "^6.0.0"
   },
   "devDependencies": {
     "mocha": "^1.21.5",
