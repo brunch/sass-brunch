@@ -158,7 +158,7 @@ SassCompiler.prototype._rubyCompile = function(source, callback) {
 
 SassCompiler.prototype.compile = function(data, path, callback) {
   // skip empty source files
-  //if (!data.trim().length) return callback(null, '');
+  if (!data.trim().length) return callback(null, '');
 
   this.seekCompass(data, path, (function (err, imports) {
     if (err) callback(err);
