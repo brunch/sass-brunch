@@ -1,3 +1,6 @@
+# sass-brunch 1.8.5 (12 October 2014)
+* Support dependency detection from `@import` statments with multiple child refs
+
 # sass-brunch 1.8.4 (1 October 2014)
 * Add `allowCache` option to allow the ruby gem's default cache behavior
 
