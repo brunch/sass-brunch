@@ -21,7 +21,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "progeny": "~0.2.1",
+    "progeny": "~0.4.0",
     "node-sass": "~0.9.3",
     "promise": "~3.2.0"
   },

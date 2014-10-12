@@ -160,7 +160,7 @@ SassCompiler.prototype.compile = function(data, path, callback) {
   // skip empty source files
   if (!data.trim().length) return callback(null, '');
 
-  this.seekCompass(data, path, (function (err, imports) {
+  this.seekCompass(path, data, (function (err, imports) {
     if (err) callback(err);
 
     var source = {
