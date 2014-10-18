@@ -1,3 +1,6 @@
+# sass-brunch 1.8.6 (18 October 2014)
+* Update node-sass to ^1.0 (which bumps [libsass to 3.0](https://github.com/sass/libsass/releases/tag/3.0))
+
 # sass-brunch 1.8.5 (12 October 2014)
 * Support dependency detection from `@import` statments with multiple child refs
 
