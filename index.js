@@ -20,8 +20,12 @@ function SassCompiler(cfg) {
   this.optimize = cfg.optimize;
   this.config = (cfg.plugins && cfg.plugins.sass) || {};
   this.mode = this.config.mode;
+  if (this.config.options != null && this.config.options.includePaths != null) {
+    this.includePaths = this.config.options.includePaths;
+  }
   this.getDependencies = progeny({
     rootPath: this.rootPath,
+    altPaths: this.includePaths,
     reverseArgs: true
   });
   this.seekCompass = progeny({
@@ -42,10 +46,6 @@ function SassCompiler(cfg) {
   }
   this.bundler = this.config.useBundler;
   this.prefix = this.bundler ? 'bundle exec ' : '';
-  if (this.config.options != null && this.config.options.includePaths != null) {
-    this.includePaths = this.config.options.includePaths;
-  }
-
 }
 
 SassCompiler.prototype.brunchPlugin = true;
