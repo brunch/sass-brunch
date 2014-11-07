@@ -21,11 +21,13 @@ function SassCompiler(cfg) {
   this.config = (cfg.plugins && cfg.plugins.sass) || {};
   this.mode = this.config.mode;
   this.getDependencies = progeny({
-    rootPath: this.rootPath
+    rootPath: this.rootPath,
+    reverseArgs: true
   });
   this.seekCompass = progeny({
     rootPath: this.rootPath,
-    exclusion: ''
+    exclusion: '',
+    potentialDeps: true
   });
   this.gem_home = this.config.gem_home;
   this.env = {};
