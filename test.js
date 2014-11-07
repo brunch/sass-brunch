@@ -8,7 +8,8 @@ describe('sass-brunch plugin', function() {
 
   beforeEach(function() {
     var config = Object.freeze({
-      paths: {root: '.'}
+      paths: {root: '.'},
+      optimize: true
       // ,plugins: {
       //   sass: {
       //     mode: 'ruby'
@@ -32,7 +33,7 @@ describe('sass-brunch plugin', function() {
 
     plugin.compile(content, 'file.scss', function(error, data) {
       expect(error).not.to.be.ok;
-      expect(data).to.equal(expected)
+      expect(data).to.equal(expected);
       done();
     });
   });
@@ -43,7 +44,7 @@ describe('sass-brunch plugin', function() {
 
     plugin.compile(content, 'file.sass', function(error, data) {
       expect(error).not.to.be.ok;
-      expect(data).to.equal(expected)
+      expect(data).to.equal(expected);
       done();
     });
   });
