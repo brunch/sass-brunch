@@ -1,3 +1,6 @@
+# sass-brunch 1.8.7 (6 November 2014)
+* Resolve dependencies located in custom `includePaths`
+
 # sass-brunch 1.8.6 (18 October 2014)
 * Update node-sass to ^1.0 (which bumps [libsass to 3.0](https://github.com/sass/libsass/releases/tag/3.0))
 
