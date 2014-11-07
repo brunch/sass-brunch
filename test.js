@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 var Plugin = require('./');
 var sysPath = require('path');
+var fs = require('fs');
 
 describe('sass-brunch plugin', function() {
   var plugin;
@@ -52,28 +53,36 @@ describe('sass-brunch plugin', function() {
   it('should output valid deps', function(done) {
     var content = "\
     @import \'valid1\';\n\
-    @import \"./valid2.scss\";\n\
     @import \'../../vendor/styles/valid3\';\n\
     ";
 
+    fs.mkdirSync('app');
+    fs.mkdirSync('vendor');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('vendor', 'styles'));
+    fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import \"./valid2.scss\";\n');
+    fs.writeFileSync(sysPath.join('app', 'styles', 'valid2.scss'), '\n');
+    fs.writeFileSync(sysPath.join('vendor', 'styles', '_valid3.scss'), '\n');
+
     var expected = [
-      sysPath.join('app', 'styles', 'valid1.scss'),
-      sysPath.join('app', 'styles', 'valid2.scss'),
-      sysPath.join('vendor', 'styles', 'valid3.scss'),
-      sysPath.join('app', 'styles', '_valid1.scss'),
-      sysPath.join('app', 'styles', '_valid2.scss'),
-      sysPath.join('vendor', 'styles', '_valid3.scss'),
-      sysPath.join('app', 'styles', 'valid1.sass'),
-      sysPath.join('app', 'styles', 'valid2.sass'),
-      sysPath.join('vendor', 'styles', 'valid3.sass'),
       sysPath.join('app', 'styles', '_valid1.sass'),
-      sysPath.join('app', 'styles', '_valid2.sass'),
-      sysPath.join('vendor', 'styles', '_valid3.sass')
+      sysPath.join('app', 'styles', 'valid2.scss'),
+      sysPath.join('vendor', 'styles', '_valid3.scss')
     ];
 
     plugin.getDependencies(content, fileName, function(error, dependencies) {
+      fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'valid2.scss'));
+      fs.unlinkSync(sysPath.join('vendor', 'styles', '_valid3.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync(sysPath.join('vendor', 'styles'));
+      fs.rmdirSync('app');
+      fs.rmdirSync('vendor');
       expect(error).not.to.be.ok;
-      expect(dependencies).to.eql(expected);
+      expect(dependencies.length).to.eql(expected.length);
+      expected.forEach(function (item){
+        expect(dependencies.indexOf(item)).to.be.greaterThan(-1);
+      });
       done();
     });
   });
