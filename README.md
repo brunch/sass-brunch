@@ -13,13 +13,18 @@ Or, do manual install:
 `"sass-brunch": "git+ssh://git@github.com:brunch/sass-brunch.git"`.
 
 ### Options
-Force the plugin to always use Ruby sass instead of C's libsass:
+The default compilation method is libsass, with an automatic revert to the sass
+ruby gem for `.sass` files or if `compass` is `@import`ed. It is possible to
+set a particular mode regardless of automatic detection. If using a 
+libsass-compatible compass replacement such as
+[compass-mixins](https://github.com/Igosuki/compass-mixins), it is necessary to
+set `native` mode.
 
 ```coffeescript
 config =
   plugins:
     sass:
-      mode: 'ruby'
+      mode: 'ruby' // set to 'native' to force libsass
 ```
 
 Set additional include paths:

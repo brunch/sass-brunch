@@ -175,7 +175,7 @@ SassCompiler.prototype.compile = function(data, path, callback) {
 
     var fileUsesRuby = sassRe.test(path) || source.compass;
 
-    if (this.mode === 'ruby' || (!this.mode && fileUsesRuby)) {
+    if (this.mode === 'ruby' || (this.mode !== 'native' && fileUsesRuby)) {
       this._rubyCompile(source, callback);
     } else {
       this._nativeCompile(source, callback);
