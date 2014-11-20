@@ -24,7 +24,7 @@ set `native` mode.
 config =
   plugins:
     sass:
-      mode: 'ruby' // set to 'native' to force libsass
+      mode: 'ruby' # set to 'native' to force libsass
 ```
 
 Set additional include paths:
