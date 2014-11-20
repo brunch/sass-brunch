@@ -1,3 +1,6 @@
+# sass-brunch 1.8.8 (20 November 2014)
+* Add `native` mode option to force use of libsass
+
 # sass-brunch 1.8.7 (6 November 2014)
 * Resolve dependencies located in custom `includePaths`
 
