@@ -92,8 +92,9 @@ SassCompiler.prototype._getIncludePaths = function(path) {
 SassCompiler.prototype._nativeCompile = function(source, callback) {
   libsass.render({
     data: source.data,
-    success: (function(css) {
-      callback(null, css);
+    success: (function(data) {
+      if(data.css) data = data.css;
+      callback(null, data);
     }),
     error: (function(error) {
       callback(error);
