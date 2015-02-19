@@ -1,3 +1,6 @@
+# sass-brunch 1.8.9 (19 February 2015)
+* Make compatible with node-sass 2.x (while retaining 1.x compatibility)
+
 # sass-brunch 1.8.8 (20 November 2014)
 * Add `native` mode option to force use of libsass
 
