@@ -94,7 +94,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
     data: source.data,
     success: (function(data) {
       if(data.css) {
-        callback(null, data);
+        callback(null, data.css);
       } else {
         callback(null, null);
       }
