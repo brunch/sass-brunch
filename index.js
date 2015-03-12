@@ -97,7 +97,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
       callback(null, data);
     }),
     error: (function(error) {
-      callback(error);
+      callback(error.message);
     }),
     includePaths: this._getIncludePaths(source.path),
     outputStyle: 'nested',
