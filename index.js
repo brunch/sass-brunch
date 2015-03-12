@@ -4,6 +4,7 @@ var progeny = require('progeny');
 var libsass = require('node-sass');
 var Promise = require('promise');
 var os = require('os');
+var util = require('util');
 
 var isWindows = os.platform() === 'win32';
 var compassRe = /compass/;
@@ -97,7 +98,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
       callback(null, data);
     }),
     error: (function(error) {
-      callback(error.message);
+      callback(error.message || util.inspect(error));
     }),
     includePaths: this._getIncludePaths(source.path),
     outputStyle: 'nested',
