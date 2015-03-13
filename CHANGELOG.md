@@ -1,3 +1,6 @@
+# sass-brunch 1.8.10 (13 March 2015)
+* Fix logging of syntax error output from node-sass
+
 # sass-brunch 1.8.9 (19 February 2015)
 * Make compatible with node-sass 2.x (while retaining 1.x compatibility)
 
