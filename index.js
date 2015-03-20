@@ -94,7 +94,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
   libsass.render({
     data: source.data,
     success: (function(data) {
-      if(data.css) data = data.css;
+      if('css' in data) data = data.css;
       callback(null, data);
     }),
     error: (function(error) {
