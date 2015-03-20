@@ -96,4 +96,21 @@ describe('sass-brunch plugin', function() {
       done();
     });
   });
+
+  it('should save without error', function(done) {
+    var content = '$var: () !default;' +
+      '@function test($value) {\n' +
+      '\t@if index($var, $value) {\n' +
+      '\t\t@return false;' +
+      '\t}' +
+      '\t$var: append($var, $value) !global;\n' +
+      '\t@return true;' +
+      '}';
+      var expected = '';
+      plugin.compile(content, 'no-content.scss', function(error, data) {
+          expect(error).not.to.be.ok;
+          expect(data).to.equal(expected);
+          done();
+      });
+  });
 });
