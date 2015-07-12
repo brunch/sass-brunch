@@ -24,7 +24,7 @@ describe('sass-brunch plugin', function() {
     expect(plugin).to.be.ok;
   });
 
-  it('should has #compile method', function() {
+  it('should have a #compile method', function() {
     expect(plugin.compile).to.be.an.instanceof(Function);
   });
 
