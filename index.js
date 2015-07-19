@@ -52,7 +52,7 @@ function SassCompiler(cfg) {
 SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
 SassCompiler.prototype.extension = 'scss';
-SassCompiler.prototype.pattern = /\.s[ac]ss$/;
+SassCompiler.prototype.pattern = /\.scss$/;
 SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
 SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass';
 
@@ -92,18 +92,21 @@ SassCompiler.prototype._getIncludePaths = function(path) {
 
 SassCompiler.prototype._nativeCompile = function(source, callback) {
   libsass.render({
-    data: source.data,
-    success: (function(data) {
-      if('css' in data) data = data.css;
-      callback(null, data);
-    }),
-    error: (function(error) {
-      callback(error.message || util.inspect(error));
-    }),
-    includePaths: this._getIncludePaths(source.path),
-    outputStyle: 'nested',
-    sourceComments: !this.optimize
-  });
+      file: source.path,
+      data: source.data,
+      includePaths: this._getIncludePaths(source.path),
+      outputStyle: 'compressed',
+      sourceComments: !this.optimize
+    },
+    function(error, result) {
+      if (error) {
+        callback(error.message || util.inspect(error));
+        done();
+      } else {
+        callback(null, result.css.toString());
+        done();
+      }
+    });
 };
 
 SassCompiler.prototype._rubyCompile = function(source, callback) {
