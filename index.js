@@ -101,10 +101,8 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
     function(error, result) {
       if (error) {
         callback(error.message || util.inspect(error));
-        done();
       } else {
         callback(null, result.css.toString());
-        done();
       }
     });
 };
