@@ -30,7 +30,7 @@ describe('sass-brunch plugin', function() {
 
   it('should compile and produce valid result for scss', function(done) {
     var content = '$a: 5px; .test {\n  border-radius: $a; }\n';
-    var expected = '.test{border-radius:5px}\n';
+    var expected = '.test {\n  border-radius: 5px; }\n';
 
     plugin.compile(content, 'file.scss', function(error, data) {
       expect(error).not.to.be.ok;
