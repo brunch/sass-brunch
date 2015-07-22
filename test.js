@@ -24,7 +24,7 @@ describe('sass-brunch plugin', function() {
     expect(plugin).to.be.ok;
   });
 
-  it('should has #compile method', function() {
+  it('should have a #compile method', function() {
     expect(plugin.compile).to.be.an.instanceof(Function);
   });
 
@@ -33,17 +33,6 @@ describe('sass-brunch plugin', function() {
     var expected = '.test {\n  border-radius: 5px; }\n';
 
     plugin.compile(content, 'file.scss', function(error, data) {
-      expect(error).not.to.be.ok;
-      expect(data).to.equal(expected);
-      done();
-    });
-  });
-
-  it('should compile and produce valid result for sass', function(done) {
-    var content = '$a: 5px\n.test\n  border-radius: $a';
-    var expected = '.test {\n  border-radius: 5px; }\n';
-
-    plugin.compile(content, 'file.sass', function(error, data) {
       expect(error).not.to.be.ok;
       expect(data).to.equal(expected);
       done();
