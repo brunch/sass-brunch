@@ -1,3 +1,6 @@
+# sass-brunch 1.8.11 (18 August 2015)
+* Fix bug with processing of sass files that do not result in any compiled css
+
 # sass-brunch 1.8.10 (13 March 2015)
 * Fix logging of syntax error output from node-sass
 
