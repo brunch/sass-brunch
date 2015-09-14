@@ -92,20 +92,20 @@ SassCompiler.prototype._getIncludePaths = function(path) {
 
 SassCompiler.prototype._nativeCompile = function(source, callback) {
   libsass.render({
-      file: source.path,
-      data: source.data,
-      includePaths: this._getIncludePaths(source.path),
-      outputStyle: (this.optimize ? "nested" : 'compressed'),
-      sourceComments: !this.optimize,
-      indentedSyntax: sassRe.test(source.path)
-    },
-    function(error, result) {
-      if (error) {
-        callback(error.message || util.inspect(error));
-      } else {
-        callback(null, result.css.toString());
-      }
-    });
+    file: source.path,
+    data: source.data,
+    includePaths: this._getIncludePaths(source.path),
+    outputStyle: (this.optimize ? "nested" : 'compressed'),
+    sourceComments: !this.optimize,
+    indentedSyntax: sassRe.test(source.path)
+  },
+  function(error, result) {
+    if (error) {
+      callback(error.message || util.inspect(error));
+    } else {
+      callback(null, result.css.toString());
+    }
+  });
 };
 
 SassCompiler.prototype._rubyCompile = function(source, callback) {
