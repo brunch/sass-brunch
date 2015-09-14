@@ -1,3 +1,6 @@
+# sass-brunch 1.9.0 (14 September 2015)
+* Upgrade to node-sass 3.x, providing libsass support for both .sass and .scss syntax
+
 # sass-brunch 1.8.11 (18 August 2015)
 * Fix bug with processing of sass files that do not result in any compiled css
 
