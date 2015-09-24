@@ -1,3 +1,6 @@
+# sass-brunch 1.9.1 (24 September 2015)
+* Fix output style setting (compressed when in optimize mode)
+
 # sass-brunch 1.9.0 (14 September 2015)
 * Upgrade to node-sass 3.x, providing libsass support for both .sass and .scss syntax
 
