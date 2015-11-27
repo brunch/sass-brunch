@@ -45,6 +45,15 @@ config =
       debug: 'comments' # or set to 'debug' for the FireSass-style output
 ```
 
+Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
+
+```coffeescript
+config =
+  plugins:
+    sass:
+      precision: 8
+```
+
 Allow the ruby compiler to write its normal cache files in `.sass-cache` (disabled by default).
 This can vastly improve compilation time.
 

@@ -94,6 +94,7 @@ SassCompiler.prototype._nativeCompile = function(source, callback) {
   libsass.render({
     file: source.path,
     data: source.data,
+    precision: this.config.precision,
     includePaths: this._getIncludePaths(source.path),
     outputStyle: (this.optimize ? "compressed" : "nested"),
     sourceComments: !this.optimize,
@@ -133,6 +134,7 @@ SassCompiler.prototype._rubyCompile = function(source, callback) {
       cmd.push(hasComments ? '--line-comments' : '--debug-info');
     }
 
+    if (this.config.precision) cmd.push('--precision=' + this.config.precision);
     if (!sassRe.test(source.path)) cmd.push('--scss');
     if (source.compass && this.compass) cmd.push('--compass');
     if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
