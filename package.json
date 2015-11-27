@@ -4,6 +4,7 @@
   "description": "Adds Sass support to brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
+  "license": "MIT",
   "keywords": [
     "brunch",
     "brunch-plugin",
