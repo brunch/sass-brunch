@@ -1,3 +1,6 @@
+# sass-brunch 1.9.2 (27 November 2015)
+* Add `precision` option
+
 # sass-brunch 1.9.1 (24 September 2015)
 * Fix output style setting (compressed when in optimize mode)
 
