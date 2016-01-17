@@ -19,7 +19,7 @@
     "url": "git@github.com:brunch/sass-brunch.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "node_modules/.bin/eslint index.js && node_modules/.bin/mocha"
   },
   "dependencies": {
     "node-sass": "^3.0.0",
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "mocha": "^2.0.1",
-    "chai": "^1.9.2"
+    "chai": "^1.9.2",
+    "eslint": "^1.10.3"
   }
 }

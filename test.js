@@ -26,8 +26,8 @@ function runTests(o) {
     beforeEach(function() {
       config = Object.freeze({
         paths: {root: '.'},
-        optimize: true
-        ,plugins: {
+        optimize: true,
+        plugins: {
           sass: {
             mode: mode
           }
@@ -48,22 +48,20 @@ function runTests(o) {
       var content = '$a: 5px; .test {\n  border-radius: $a; }\n';
       var expected = '.test {\n  border-radius: 5px; }\n';
 
-      plugin.compile(content, 'file.scss', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.scss'}).then(data => {
         expect(data).to.equal(compress(expected));
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should default to five decimals of precision for scss', function(done) {
       var content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
       var expected = '1.66667px';
 
-      plugin.compile(content, 'file.scss', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.scss'}).then(data => {
         expect(data).to.contain(expected);
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should calculate to the indicated level of precision for scss', function(done) {
@@ -80,33 +78,30 @@ function runTests(o) {
         }
       });
 
-      plugin.compile(content, 'file.scss', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.scss'}).then(data => {
         expect(data).to.contain(expected);
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should compile and produce valid result for sass', function(done) {
       var content = '$a: 5px\n.test\n  border-radius: $a';
       var expected = '.test {\n  border-radius: 5px; }\n';
 
-      plugin.compile(content, 'file.sass', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.sass'}).then(data => {
         expect(data).to.equal(compress(expected));
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should default to five decimals of precision for sass', function(done) {
       var content = '$a: 5px\n.test\n  border-radius: $a/3';
       var expected = '1.66667px';
 
-      plugin.compile(content, 'file.sass', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.sass'}).then(data => {
         expect(data).to.contain(expected);
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should calculate to the indicated level of precision for sass', function(done) {
@@ -123,11 +118,10 @@ function runTests(o) {
         }
       });
 
-      plugin.compile(content, 'file.sass', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.sass'}).then(data => {
         expect(data).to.contain(expected);
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should output valid deps', function(done) {
@@ -170,11 +164,10 @@ function runTests(o) {
     it('should return empty result for empty source', function(done) {
       var content = '   \t\n';
       var expected = '';
-      plugin.compile(content, 'file.scss', function(error, data) {
-        expect(error).not.to.be.ok;
+      plugin.compile({data: content, path: 'file.scss'}).then(data => {
         expect(data).to.equal(expected)
         done();
-      });
+      }, error => expect(error).not.to.be.ok);
     });
 
     it('should save without error', function(done) {
@@ -187,11 +180,10 @@ function runTests(o) {
         '\t@return true;' +
         '}';
         var expected = '';
-        plugin.compile(content, 'no-content.scss', function(error, data) {
-            expect(error).not.to.be.ok;
-            expect(data).to.equal(expected);
-            done();
-        });
+        plugin.compile({data: content, path: 'no-content.scss'}).then(data => {
+          expect(data).to.equal(expected);
+          done();
+        }, error => expect(error).not.to.be.ok);
     });
   });
 };
