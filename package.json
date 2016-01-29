@@ -1,6 +1,6 @@
 {
   "name": "sass-brunch",
-  "version": "1.9.2",
+  "version": "2.0.0",
   "description": "Adds Sass support to brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
