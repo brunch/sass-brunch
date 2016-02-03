@@ -129,13 +129,17 @@ class SassCompiler {
         includePaths: this._getIncludePaths(source.path),
         outputStyle: (this.optimize ? 'compressed' : 'nested'),
         sourceComments: !this.optimize,
-        indentedSyntax: sassRe.test(source.path)
+        indentedSyntax: sassRe.test(source.path),
+        outFile: 'a.css',
+        sourceMap: true
       },
       (error, result) => {
         if (error) {
           reject(error.message || util.inspect(error));
         } else {
-          resolve(result.css.toString());
+          const css = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
+          const map = JSON.parse(result.map.toString());
+          resolve({data: css, map: map});
         }
       });
     });
