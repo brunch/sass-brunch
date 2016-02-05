@@ -20,6 +20,8 @@ libsass-compatible compass replacement such as
 [compass-mixins](https://github.com/Igosuki/compass-mixins), it is necessary to
 set `native` mode.
 
+Note that source maps are only supported in the `native` mode.
+
 ```coffeescript
 config =
   plugins:
