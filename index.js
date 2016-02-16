@@ -178,7 +178,7 @@ class SassCompiler {
         this.env.windowsVerbatimArguments = true;
       }
 
-      return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data);
+      return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data).then(d => { return {data: d}; });
     });
   }
 
@@ -187,7 +187,7 @@ class SassCompiler {
     const path = params.path;
 
     // skip empty source files
-    if (!data.trim().length) return Promise.resolve('');
+    if (!data.trim().length) return Promise.resolve({data: ''});
 
     return this.seekCompass(path, data).then(imports => {
       const source = {

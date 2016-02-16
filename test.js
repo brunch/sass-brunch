@@ -6,7 +6,7 @@ var fs = require('fs');
 describe('sass-brunch plugin using', function () {
   runTests.call(this, {
     mode: 'native',
-    compress: function (s) { return s.replace(/[\s;]*/g, '') + '\n'; }
+    compress: function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; }
   });
 
   if (process.env.TRAVIS !== 'true') {
@@ -49,7 +49,7 @@ function runTests(o) {
       var expected = '.test {\n  border-radius: 5px; }\n';
 
       plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data).to.equal(compress(expected));
+        expect(data.data).to.equal(compress(expected));
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -59,7 +59,7 @@ function runTests(o) {
       var expected = '1.66667px';
 
       plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data).to.contain(expected);
+        expect(data.data).to.contain(expected);
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -79,7 +79,7 @@ function runTests(o) {
       });
 
       plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data).to.contain(expected);
+        expect(data.data).to.contain(expected);
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -89,7 +89,7 @@ function runTests(o) {
       var expected = '.test {\n  border-radius: 5px; }\n';
 
       plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data).to.equal(compress(expected));
+        expect(data.data).to.equal(compress(expected));
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -99,7 +99,7 @@ function runTests(o) {
       var expected = '1.66667px';
 
       plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data).to.contain(expected);
+        expect(data.data).to.contain(expected);
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -119,7 +119,7 @@ function runTests(o) {
       });
 
       plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data).to.contain(expected);
+        expect(data.data).to.contain(expected);
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -165,7 +165,7 @@ function runTests(o) {
       var content = '   \t\n';
       var expected = '';
       plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data).to.equal(expected)
+        expect(data.data).to.equal(expected)
         done();
       }, error => expect(error).not.to.be.ok);
     });
@@ -181,7 +181,7 @@ function runTests(o) {
         '}';
         var expected = '';
         plugin.compile({data: content, path: 'no-content.scss'}).then(data => {
-          expect(data).to.equal(expected);
+          expect(data.data.trim()).to.equal(expected);
           done();
         }, error => expect(error).not.to.be.ok);
     });
