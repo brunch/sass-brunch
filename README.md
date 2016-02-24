@@ -35,7 +35,7 @@ config =
   plugins:
     sass:
       options:
-        includePaths: ['bower_components/foundation/scss']
+        includePaths: ['node_modules/foundation/scss']
 ```
 
 Print line number references as comments or sass's FireSass fake media query:
