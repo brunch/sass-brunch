@@ -86,6 +86,20 @@ config =
 ```
 This could be useful for the environment which doesn't allow to install gems globally, such as CI server.
 
+Use libsass [experimental custom functions](https://github.com/sass/node-sass#functions--v300---experimental):
+
+```coffeescript
+types = require('node-sass').types
+config =
+  plugins:
+    sass:
+      mode: 'native' # custom functions are only supported in 'native' mode
+      functions:
+        sin: (val) -> types.Number(Math.sin(val.getValue()))
+        cos: (val) -> types.Number(Math.cos(val.getValue()))
+        tan: (val) -> types.Number(Math.tan(val.getValue()))
+```
+
 ## License
 
 The MIT License (MIT)

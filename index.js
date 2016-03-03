@@ -131,6 +131,7 @@ class SassCompiler {
         sourceComments: !this.optimize,
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
+        functions: this.config.functions,
         sourceMap: true
       },
       (error, result) => {
