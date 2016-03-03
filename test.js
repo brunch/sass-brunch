@@ -187,3 +187,56 @@ function runTests(o) {
     });
   });
 };
+
+describe('sass-brunch plugin using native', function() {
+  var compress = function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; };
+  describe('with experimental custom functions', function() {
+
+    it('should invoke the functions for scss', function(done) {
+      var config = Object.freeze({
+        paths: {root: '.'},
+        optimize: true,
+        plugins: {
+          sass: {
+            mode: 'native',
+            functions: { pow: (val, exp) => require('node-sass').types.Number(Math.pow(val.getValue(), exp.getValue()), val.getUnit()) }
+          }
+        }
+      });
+      var plugin = new Plugin(config);
+
+      var content = '.test {\n  border-radius: pow(2px,10); }\n';
+      var expected = '.test {\n  border-radius: 1024px; }\n';
+
+      plugin.compile({data: content, path: 'file.scss'}).then(data => {
+        expect(data.data).to.equal(compress(expected));
+        done();
+      }, error => expect(error).not.to.be.ok)
+      .catch( (err) => done(err) );
+    });
+
+    it('should invoke the functions for sass', function(done) {
+      var config = Object.freeze({
+        paths: {root: '.'},
+        optimize: true,
+        plugins: {
+          sass: {
+            mode: 'native',
+            functions: { pow: (val, exp) => require('node-sass').types.Number(Math.pow(val.getValue(), exp.getValue()), val.getUnit()) }
+          }
+        }
+      });
+      var plugin = new Plugin(config);
+
+      var content = '.test \n  border-radius: pow(2px,10);\n';
+      var expected = '.test {\n  border-radius: 1024px; }\n';
+
+      plugin.compile({data: content, path: 'file.sass'}).then(data => {
+        expect(data.data).to.equal(compress(expected));
+        done();
+      }, error => expect(error).not.to.be.ok)
+      .catch( (err) => done(err) );
+    });
+
+  });
+});
