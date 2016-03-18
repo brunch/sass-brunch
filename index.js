@@ -7,6 +7,19 @@ const libsass = require('node-sass');
 const os = require('os');
 const util = require('util');
 
+const postcss = require('postcss');
+const postcssModules = require('postcss-modules');
+
+const cssModulify = (path, data, map) => {
+  let json = {};
+  const getJSON = (_, _json) => json = _json;
+
+  return postcss([postcssModules({getJSON})]).process(data, {from: path, map}).then(x => {
+    const exports = 'module.exports = ' + JSON.stringify(json) + ';';
+    return { data: x.css, map: x.map, exports };
+  });
+};
+
 const isWindows = os.platform() === 'win32';
 const compassRe = /compass/;
 const sassRe = /\.sass$/;
@@ -203,6 +216,12 @@ class SassCompiler {
         return this._rubyCompile(source);
       } else {
         return this._nativeCompile(source);
+      }
+    }).then(params => {
+      if (this.config.cssModules) {
+        return cssModulify(path, params.data, params.map);
+      } else {
+        return params;
       }
     });
   }
