@@ -24,7 +24,9 @@
   "dependencies": {
     "node-sass": "~3.4.0",
     "progeny": "~0.5.1",
-    "promise": "~6.0.0"
+    "promise": "~6.0.0",
+    "postcss": "~5.0.19",
+    "postcss-modules": "~0.4.0"
   },
   "devDependencies": {
     "mocha": "^2.0.1",

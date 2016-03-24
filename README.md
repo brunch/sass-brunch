@@ -100,6 +100,38 @@ config =
         tan: (val) -> types.Number(Math.tan(val.getValue()))
 ```
 
+### CSS Modules
+Starting Brunch `<unreleased>`, you can use CSS Modules with css-brunch. To enable it, change your config to:
+
+```javascript
+module.exports = {
+  // ...
+  plugins: {
+    sass: {
+      cssModules: true
+    }
+  }
+};
+```
+
+Then, author your styles like you normally would:
+
+```scss
+.title {
+  font-size: 32px;
+}
+```
+
+And reference CSS class names by requiring the specific style into your javascript:
+
+```javascript
+var style = require('./title.scss');
+
+<h1 className={style.title}>Yo</h1>
+```
+
+Note: enabling `cssModules` does so for every stylesheet in your project, so it's all-or-nothing. Even the files you don't require will be transformed into CSS modules (aka will have obfuscated class names, like turn `.title` into `._title_fdphn_1`).
+
 ## License
 
 The MIT License (MIT)
