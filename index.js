@@ -68,6 +68,9 @@ class SassCompiler {
     this.rootPath = cfg.paths.root;
     this.optimize = cfg.optimize;
     this.config = (cfg.plugins && cfg.plugins.sass) || {};
+    this.modules = this.config.modules || this.config.cssModules;
+    delete this.config.modules;
+    delete this.config.cssModules;
     this.mode = this.config.mode;
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
@@ -218,7 +221,7 @@ class SassCompiler {
         return this._nativeCompile(source);
       }
     }).then(params => {
-      if (this.config.cssModules) {
+      if (this.modules) {
         return cssModulify(path, params.data, params.map);
       } else {
         return params;
