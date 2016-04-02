@@ -15,7 +15,7 @@ Or, do manual install:
 ### Options
 The default compilation method is libsass, with an automatic revert to the sass
 ruby gem for `.sass` files or if `compass` is `@import`ed. It is possible to
-set a particular mode regardless of automatic detection. If using a 
+set a particular mode regardless of automatic detection. If using a
 libsass-compatible compass replacement such as
 [compass-mixins](https://github.com/Igosuki/compass-mixins), it is necessary to
 set `native` mode.
@@ -101,14 +101,14 @@ config =
 ```
 
 ### CSS Modules
-Starting Brunch `<unreleased>`, you can use CSS Modules with css-brunch. To enable it, change your config to:
+Starting Brunch `2.6.0`, you can use CSS Modules with css-brunch. To enable it, change your config to:
 
 ```javascript
 module.exports = {
   // ...
   plugins: {
     sass: {
-      cssModules: true
+      modules: true
     }
   }
 };
