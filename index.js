@@ -148,7 +148,8 @@ class SassCompiler {
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
-        sourceMap: true
+        sourceMap: true,
+        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed
       },
       (error, result) => {
         if (error) {
