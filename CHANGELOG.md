@@ -1,9 +1,13 @@
-# unreleased
-* Add source map support for `native` (requires Brunch >= 2.2.5?)
+# sass-brunch 2.6.2 (Apr 5, 2016)
+* Add source map support for `native`
+
+# sass-brunch 2.6.0 (Apr 2, 2016)
+* Added support for CSS modules with `plugins: {sass: {modules: true}}`
 
 # sass-brunch 2.0.0 (Jan 29, 2016)
 * Updated source code & API. The plugin would now only work with Brunch 2.2 and higher.
-=======
+
+===
 
 # sass-brunch 1.9.2 (27 November 2015)
 * Add `precision` option
