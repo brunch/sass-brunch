@@ -123,6 +123,22 @@ module.exports = {
 };
 ```
 
+You can also pass options directly to
+[postcss-modules](https://github.com/css-modules/postcss-modules):
+
+```javascript
+module.exports = {
+  // ...
+  plugins: {
+    sass: {
+      modules: {
+        generateScopedName: '[name]__[local]___[hash:base64:5]'
+      }
+    }
+  }
+};
+```
+
 Then, author your styles like you normally would:
 
 ```scss

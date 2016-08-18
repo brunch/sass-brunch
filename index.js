@@ -10,14 +10,15 @@ const util = require('util');
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
 
-const cssModulify = (path, data, map) => {
+const cssModulify = (path, data, map, options) => {
   let json = {};
   const getJSON = (_, _json) => json = _json;
 
-  return postcss([postcssModules({getJSON})]).process(data, {from: path, map}).then(x => {
-    const exports = 'module.exports = ' + JSON.stringify(json) + ';';
-    return { data: x.css, map: x.map, exports };
-  });
+  return postcss([postcssModules(Object.assign({}, {getJSON}, options))])
+    .process(data, {from: path, map}).then(x => {
+      const exports = 'module.exports = ' + JSON.stringify(json) + ';';
+      return { data: x.css, map: x.map, exports };
+    });
 };
 
 const isWindows = os.platform() === 'win32';
@@ -223,7 +224,8 @@ class SassCompiler {
       }
     }).then(params => {
       if (this.modules) {
-        return cssModulify(path, params.data, params.map);
+        const moduleOptions = this.modules === true ? {} : this.modules;
+        return cssModulify(path, params.data, params.map, moduleOptions);
       } else {
         return params;
       }
