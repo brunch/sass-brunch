@@ -140,7 +140,7 @@ class SassCompiler {
   _nativeCompile(source) {
     return new Promise((resolve, reject) => {
       var debugMode = this.config.debug;
-      var hasComments = debugMode === 'comments' && !this.optimize
+      var hasComments = debugMode === 'comments' && !this.optimize;
 
       libsass.render({
         file: source.path,
