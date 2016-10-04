@@ -139,13 +139,16 @@ class SassCompiler {
 
   _nativeCompile(source) {
     return new Promise((resolve, reject) => {
+      var debugMode = this.config.debug;
+      var hasComments = debugMode === 'comments' && !this.optimize
+
       libsass.render({
         file: source.path,
         data: source.data,
         precision: this.config.precision,
         includePaths: this._getIncludePaths(source.path),
         outputStyle: (this.optimize ? 'compressed' : 'nested'),
-        sourceComments: !this.optimize,
+        sourceComments: hasComments,
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
