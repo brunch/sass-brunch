@@ -6,6 +6,7 @@ const progeny = require('progeny');
 const libsass = require('node-sass');
 const os = require('os');
 const util = require('util');
+const anymatch = require('anymatch');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -70,6 +71,14 @@ class SassCompiler {
     this.optimize = cfg.optimize;
     this.config = (cfg.plugins && cfg.plugins.sass) || {};
     this.modules = this.config.modules || this.config.cssModules;
+
+    if (this.modules && this.config.modules.ignore) {
+      this.isIgnored = anymatch(this.config.modules.ignore);
+      delete this.config.modules.ignore;
+    } else {
+      this.isIgnored = anymatch([]);
+    }
+
     delete this.config.modules;
     delete this.config.cssModules;
     this.mode = this.config.mode;
@@ -226,7 +235,7 @@ class SassCompiler {
         return this._nativeCompile(source);
       }
     }).then(params => {
-      if (this.modules) {
+      if (this.modules && !this.isIgnored(params.path)) {
         const moduleOptions = this.modules === true ? {} : this.modules;
         return cssModulify(path, params.data, params.map, moduleOptions);
       } else {
