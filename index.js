@@ -72,9 +72,9 @@ class SassCompiler {
     this.config = (cfg.plugins && cfg.plugins.sass) || {};
     this.modules = this.config.modules || this.config.cssModules;
 
-    if (this.modules && this.config.modules.ignore) {
-      this.isIgnored = anymatch(this.config.modules.ignore);
-      delete this.config.modules.ignore;
+    if (this.modules && this.modules.ignore) {
+      this.isIgnored = anymatch(this.modules.ignore);
+      delete this.modules.ignore;
     } else {
       this.isIgnored = anymatch([]);
     }
@@ -235,7 +235,7 @@ class SassCompiler {
         return this._nativeCompile(source);
       }
     }).then(params => {
-      if (this.modules && !this.isIgnored(params.path)) {
+      if (this.modules && !this.isIgnored(path)) {
         const moduleOptions = this.modules === true ? {} : this.modules;
         return cssModulify(path, params.data, params.map, moduleOptions);
       } else {
