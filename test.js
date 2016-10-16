@@ -185,8 +185,53 @@ function runTests(o) {
           done();
         }, error => expect(error).not.to.be.ok);
     });
+
+    it('should compile with modules', function(done) {
+      var content = '.class {color: #6b0;}';
+      var expected = /^\._class_/
+
+      newPlugin = new Plugin({
+        paths: {root: '.'},
+        plugins: {
+          sass: {
+            mode: mode,
+            modules: true,
+          }
+        }
+      });
+
+      newPlugin.compile({data: content, path: 'file.scss'}).then(result => {
+        var data = result.data;
+        expect(data).to.match(expected);
+        done();
+      }, error => expect(error).not.to.be.ok)
+      .catch( (err) => done(err) );
+    });
+
+    it('should skip modulifying files passed to ignore', function(done) {
+      var content = '.class {color: #6b0;}';
+      var expected = /^\.class \{/
+
+      newPlugin = new Plugin({
+        paths: {root: '.'},
+        plugins: {
+          sass: {
+            mode: mode,
+            modules: {ignore: [/file\.scss/]}
+          }
+        }
+      });
+
+      newPlugin.compile({data: content, path: 'file.scss'}).then(result => {
+        var data = result.data;
+        expect(data).to.match(expected);
+        done();
+      }, error => expect(error).not.to.be.ok)
+      .catch( (err) => done(err) );
+    });
   });
 };
+
 
 describe('sass-brunch plugin using native', function() {
   var compress = function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; };

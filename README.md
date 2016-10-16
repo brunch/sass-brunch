@@ -155,7 +155,23 @@ var style = require('./title.scss');
 <h1 className={style.title}>Yo</h1>
 ```
 
-Note: enabling `cssModules` does so for every stylesheet in your project, so it's all-or-nothing. Even the files you don't require will be transformed into CSS modules (aka will have obfuscated class names, like turn `.title` into `._title_fdphn_1`).
+Note: enabling `cssModules` does so for every stylesheet in your project, even the files you don't require will be transformed into CSS modules (aka will have obfuscated class names, like turn `.title` into `._title_fdphn_1`).
+
+You must use the ignore option to specifically opt out of files or directories where you don't want to use cssModules.
+
+The ignore option takes an array of matches. [Anymatch](https://github.com/es128/anymatch) is used to handle the matching. See the [anymatch documentation](https://github.com/es128/anymatch) for more information.
+```javascript
+module.exports = {
+  // ...
+  plugins: {
+    css: {
+      modules: {
+        ignore: [/file\.css/, /some\/path\/to\/ignore/]
+      }
+    }
+  }
+};
+```
 
 ## License
 
