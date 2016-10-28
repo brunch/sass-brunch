@@ -5,7 +5,6 @@ const sysPath = require('path');
 const progeny = require('progeny');
 const libsass = require('node-sass');
 const os = require('os');
-const util = require('util');
 const anymatch = require('anymatch');
 
 const postcss = require('postcss');
