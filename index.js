@@ -166,7 +166,7 @@ class SassCompiler {
       },
       (error, result) => {
         if (error) {
-          reject(error.message || util.inspect(error));
+          reject(error);
         } else {
           const css = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
           const map = JSON.parse(result.map.toString());
