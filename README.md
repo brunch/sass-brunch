@@ -164,7 +164,7 @@ The ignore option takes an array of matches. [Anymatch](https://github.com/es128
 module.exports = {
   // ...
   plugins: {
-    css: {
+    sass: {
       modules: {
         ignore: [/file\.css/, /some\/path\/to\/ignore/]
       }
