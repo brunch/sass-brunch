@@ -1,3 +1,8 @@
+# sass-brunch 2.9.0 (Nov 16, 2016)
+* Remove built in module support and delegate modules to `postcss-brunch`
+
+===
+
 # sass-brunch 2.6.2 (Apr 5, 2016)
 * Add source map support for `native`
 

@@ -5,21 +5,7 @@ const sysPath = require('path');
 const progeny = require('progeny');
 const libsass = require('node-sass');
 const os = require('os');
-const anymatch = require('anymatch');
 
-const postcss = require('postcss');
-const postcssModules = require('postcss-modules');
-
-const cssModulify = (path, data, map, options) => {
-  let json = {};
-  const getJSON = (_, _json) => json = _json;
-
-  return postcss([postcssModules(Object.assign({}, {getJSON}, options))])
-    .process(data, {from: path, map}).then(x => {
-      const exports = 'module.exports = ' + JSON.stringify(json) + ';';
-      return { data: x.css, map: x.map, exports };
-    });
-};
 
 const isWindows = os.platform() === 'win32';
 const compassRe = /compass/;
@@ -69,17 +55,7 @@ class SassCompiler {
     this.rootPath = cfg.paths.root;
     this.optimize = cfg.optimize;
     this.config = (cfg.plugins && cfg.plugins.sass) || {};
-    this.modules = this.config.modules || this.config.cssModules;
 
-    if (this.modules && this.modules.ignore) {
-      this.isIgnored = anymatch(this.modules.ignore);
-      delete this.modules.ignore;
-    } else {
-      this.isIgnored = anymatch([]);
-    }
-
-    delete this.config.modules;
-    delete this.config.cssModules;
     this.mode = this.config.mode;
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
@@ -232,13 +208,6 @@ class SassCompiler {
         return this._rubyCompile(source);
       } else {
         return this._nativeCompile(source);
-      }
-    }).then(params => {
-      if (this.modules && !this.isIgnored(path)) {
-        const moduleOptions = this.modules === true ? {} : this.modules;
-        return cssModulify(path, params.data, params.map, moduleOptions);
-      } else {
-        return params;
       }
     });
   }
