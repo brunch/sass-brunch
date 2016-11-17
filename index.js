@@ -165,7 +165,10 @@ class SassCompiler {
       },
       (error, result) => {
         if (error) {
-          reject(error);
+          // libsass provides a neat error message, but it's set as `error.formatted` 
+          // instead of `error.message`. We'll create a new error with `.message` set to 
+          // the original's `.formatted`.
+          reject(new Error(error.formatted));
         } else {
           const css = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
           const map = JSON.parse(result.map.toString());
