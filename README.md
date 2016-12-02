@@ -3,7 +3,7 @@ Adds Sass support to
 [brunch](http://brunch.io).
 
 ## Usage
-Install the plugin via npm with `npm install --save sass-brunch`.
+Install the plugin via npm with `npm install --save-dev sass-brunch`.
 
 Or, do manual install:
 
