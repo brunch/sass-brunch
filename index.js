@@ -249,7 +249,6 @@ class SassCompiler {
 
 SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
-SassCompiler.prototype.extension = 'scss';
 SassCompiler.prototype.pattern = /\.s[ac]ss$/;
 SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
 SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass'; //eslint-disable-line camelcase
