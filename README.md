@@ -23,7 +23,7 @@ set `native` mode.
 Note that source maps are only supported in the `native` mode.
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       mode: 'ruby' // set to 'native' to force libsass
@@ -34,7 +34,7 @@ config = {
 
 Set additional include paths:
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       options: {
@@ -48,7 +48,7 @@ config = {
 Print line number references as comments or sass's FireSass fake media query:
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       debug: 'comments' // or set to 'debug' for the FireSass-style output
@@ -60,7 +60,7 @@ config = {
 Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       precision: 8
@@ -73,7 +73,7 @@ Allow the ruby compiler to write its normal cache files in `.sass-cache` (disabl
 This can vastly improve compilation time.
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       allowCache: true
@@ -85,7 +85,7 @@ config = {
 To enable embedded source maps, pass the option `sourceMapEmbed`. This is only supported in _native_ mode; Ruby Sass isn't supported.
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       sourceMapEmbed: true
@@ -99,7 +99,7 @@ To include the source files' name/path in either debug mode, create a parent fil
 To pass any other options to sass:
 
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       options: ['--quiet']
@@ -110,7 +110,7 @@ config = {
 
 Use sass/compass installed in custom location:
 ```javascript
-config = {
+module.exports = {
   plugins: {
     sass: {
       gem_home: './gems'
@@ -124,7 +124,7 @@ Use libsass [experimental custom functions](https://github.com/sass/node-sass#fu
 
 ```javascript
 var types = require('node-sass').types
-config = {
+module.exports = {
   plugins: {
     sass: {
       mode: 'native', // custom functions are only supported in 'native' mode
