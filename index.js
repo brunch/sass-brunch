@@ -165,8 +165,8 @@ class SassCompiler {
       },
       (error, result) => {
         if (error) {
-          // libsass provides a neat error message, but it's set as `error.formatted` 
-          // instead of `error.message`. We'll create a new error with `.message` set to 
+          // libsass provides a neat error message, but it's set as `error.formatted`
+          // instead of `error.message`. We'll create a new error with `.message` set to
           // the original's `.formatted`.
           reject(new Error(error.formatted));
         } else {
