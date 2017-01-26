@@ -202,6 +202,17 @@ module.exports = {
 };
 ```
 
+### Import globbing
+
+You can also use globs to import your sass/scss files as of version VERSION_NUMBER
+when in native mode.
+
+For example to import all files within `./dir`, add the following:
+
+```sass
+  @import "./dir/*"
+```
+
 ## License
 
 The MIT License (MIT)
