@@ -6,6 +6,7 @@ const progeny = require('progeny');
 const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
+const nodeSassGlobbing = require('node-sass-globbing');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -161,7 +162,8 @@ class SassCompiler {
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed
+        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
+        importer: nodeSassGlobbing
       },
       (error, result) => {
         if (error) {

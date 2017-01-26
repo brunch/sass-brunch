@@ -235,6 +235,56 @@ function runTests(o) {
 
 describe('sass-brunch plugin using native', function() {
   var compress = function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; };
+
+  it(`should import files via glob`, function(done) {
+
+    var sassContent = '.something\n  background: red';
+    var scssContent = '.something-else {\n  background: blue;\n}';
+    var content = '@import "./sub_dir/*"';
+
+    var expected = '.something {\n  background: red; }\n\n.something-else {\n  background: blue; }\n\n';
+
+    fs.mkdirSync('app');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'), sassContent);
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'), scssContent);
+
+    newPlugin = new Plugin({
+      paths: {root: '.'},
+      sourceMapEmbed: false,
+      plugins: {
+        sass: {
+          mode: 'native',
+          modules: false
+        }
+      }
+    });
+
+    newPlugin.compile({data: content, path: './app/styles/file.sass'}).then(result => {
+      var data = result.data;
+      expect(data).to.equal(expected);
+
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync('app');
+
+    }, error => expect(error).not.to.be.ok)
+    .catch( (err) => {
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync('app');
+      done(err)
+    });
+
+    done();
+  });
+
+
   describe('with experimental custom functions', function() {
 
     it('should invoke the functions for scss', function(done) {
