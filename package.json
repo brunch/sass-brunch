@@ -27,7 +27,7 @@
     "node-sass-globbing": "0.0.23",
     "postcss": "~5.1.2",
     "postcss-modules": "~0.5.0",
-    "progeny": "~0.5.1",
+    "progeny": "git+https://github.com/nathamanath/progeny#feature/sass_glob_import",
     "promise": "~6.0.0"
   },
   "devDependencies": {
