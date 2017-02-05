@@ -85,16 +85,21 @@ class SassCompiler {
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
     }
+
     this.getDependencies = progeny({
       rootPath: this.rootPath,
       altPaths: this.includePaths,
-      reverseArgs: true
+      reverseArgs: true,
+      globDeps: true
     });
+
+
     this.seekCompass = promisify(progeny({
       rootPath: this.rootPath,
       exclusion: '',
       potentialDeps: true
     }));
+
     /*eslint-disable camelcase */
     this.gem_home = this.config.gem_home;
     this.env = {};
