@@ -128,35 +128,48 @@ function runTests(o) {
       var content = "\
       @import \'valid1\';\n\
       @import \'../../vendor/styles/valid3\';\n\
+      @import \'../../app/styles/globbed/*\';\n\
       ";
 
       fs.mkdirSync('app');
       fs.mkdirSync('vendor');
       fs.mkdirSync(sysPath.join('app', 'styles'));
+      fs.mkdirSync(sysPath.join('app', 'styles', 'globbed'));
       fs.mkdirSync(sysPath.join('vendor', 'styles'));
+
       fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import \"./valid2.scss\";\n');
       fs.writeFileSync(sysPath.join('app', 'styles', 'valid2.scss'), '\n');
       fs.writeFileSync(sysPath.join('vendor', 'styles', '_valid3.scss'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'), '\n');
 
       var expected = [
         sysPath.join('app', 'styles', '_valid1.sass'),
         sysPath.join('app', 'styles', 'valid2.scss'),
-        sysPath.join('vendor', 'styles', '_valid3.scss')
+        sysPath.join('vendor', 'styles', '_valid3.scss'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
       ];
 
       plugin.getDependencies(content, fileName, function(error, dependencies) {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', 'valid2.scss'));
         fs.unlinkSync(sysPath.join('vendor', 'styles', '_valid3.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'globbed'));
         fs.rmdirSync(sysPath.join('app', 'styles'));
         fs.rmdirSync(sysPath.join('vendor', 'styles'));
         fs.rmdirSync('app');
         fs.rmdirSync('vendor');
+
         expect(error).not.to.be.ok;
         expect(dependencies.length).to.eql(expected.length);
+
         expected.forEach(function (item){
           expect(dependencies.indexOf(item)).to.be.greaterThan(-1);
         });
+
         done();
       });
     });
