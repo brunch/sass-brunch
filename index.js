@@ -6,6 +6,7 @@ const progeny = require('progeny');
 const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
+const promisify = require('micro-promisify');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -25,15 +26,19 @@ const isWindows = os.platform() === 'win32';
 const compassRe = /compass/;
 const sassRe = /\.sass$/;
 
-const promisify = fn => function() {
-  const args = [].slice.call(arguments);
-  return new Promise((resolve, reject) => {
-    args.push((error, data) => {
-      if (error != null) return reject(error);
-      resolve(data);
-    });
-    fn.apply(this, args);
-  });
+const formatRe = /(on line \d+ of ([/\.\w]+))/;
+const formatError = (path, err) => {
+  let loc = `L${err.line}:${err.column}`;
+  let code = err.formatted.replace('Error: ' + err.message, '');
+  const match = code.match(formatRe);
+  code = code.replace(formatRe, '');
+  const erroredPath = match[2];
+
+  loc += (erroredPath === path) ? ': ' : ` of ${erroredPath}. `;
+
+  const error = new Error(`${loc}\n${err.message} ${code}`);
+  error.name = '';
+  return error;
 };
 
 const promiseSpawnAndPipe = (cmd, args, env, data) => {
@@ -165,10 +170,7 @@ class SassCompiler {
       },
       (error, result) => {
         if (error) {
-          // libsass provides a neat error message, but it's set as `error.formatted`
-          // instead of `error.message`. We'll create a new error with `.message` set to
-          // the original's `.formatted`.
-          reject(new Error(error.formatted));
+          return reject(formatError(source.path, error));
         } else {
           const css = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
           const map = JSON.parse(result.map.toString());
