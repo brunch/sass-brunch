@@ -1,7 +1,7 @@
 {
   "name": "sass-brunch",
   "version": "2.10.4",
-  "description": "Adds Sass support to brunch.",
+  "description": "Adds Sass support to Brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "url": "git@github.com:brunch/sass-brunch.git"
   },
   "scripts": {
-    "test": "node_modules/.bin/eslint index.js && node_modules/.bin/mocha"
+    "test": "eslint index.js && mocha"
   },
   "dependencies": {
     "anymatch": "^1.3.0",
