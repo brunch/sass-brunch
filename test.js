@@ -140,36 +140,47 @@ function runTests(settings) {
       const content = `
       @import 'valid1';
       @import '../../vendor/styles/valid3';
+      @import '../../app/styles/globbed/*';
       `;
 
       fs.mkdirSync('app');
       fs.mkdirSync('vendor');
       fs.mkdirSync(sysPath.join('app', 'styles'));
+      fs.mkdirSync(sysPath.join('app', 'styles', 'globbed'));
       fs.mkdirSync(sysPath.join('vendor', 'styles'));
       fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import "./valid2.scss";');
       fs.writeFileSync(sysPath.join('app', 'styles', 'valid2.scss'), '\n');
       fs.writeFileSync(sysPath.join('vendor', 'styles', '_valid3.scss'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'), '\n');
 
       const expected = [
         sysPath.join('app', 'styles', '_valid1.sass'),
         sysPath.join('app', 'styles', 'valid2.scss'),
         sysPath.join('vendor', 'styles', '_valid3.scss'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
       ];
 
-      plugin.getDependencies(content, fileName, (error, dependencies) => {
+      plugin.getDependencies(content, fileName, function(error, dependencies) {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', 'valid2.scss'));
         fs.unlinkSync(sysPath.join('vendor', 'styles', '_valid3.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'globbed'));
         fs.rmdirSync(sysPath.join('app', 'styles'));
         fs.rmdirSync(sysPath.join('vendor', 'styles'));
         fs.rmdirSync('app');
         fs.rmdirSync('vendor');
 
         expect(error).not.to.be.ok;
-        expect(dependencies.length).to.equal(expected.length);
-        expected.forEach(item => {
-          expect(dependencies.indexOf(item)).to.be.greaterThan(-1);
-        });
+        expect(dependencies.length).to.eql(expected.length);
+
+        expected.forEach(item =>
+          expect(dependencies.indexOf(item)).to.be.greaterThan(-1)
+        );
+
         done();
       });
     });
@@ -249,9 +260,46 @@ function runTests(settings) {
   });
 };
 
-
 describe('sass-brunch plugin using native', () => {
   const compress = str => `${str.replace(/[\s;]*/g, '')}\n\n`;
+
+  it(`should import files via glob`, () => {
+    const sassContent = '.something\n  background: red';
+    const scssContent = '.something-else {\n  background: blue;\n}';
+    const content = '@import "./sub_dir/*"';
+
+    const expected = '.something {\n  background: red; }\n\n.something-else {\n  background: blue; }\n\n';
+
+    fs.mkdirSync('app');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'), sassContent);
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'), scssContent);
+
+    const newPlugin = new Plugin({
+      paths: {root: '.'},
+      sourceMapEmbed: false,
+      plugins: {
+        sass: {
+          mode: 'native',
+          modules: false,
+        },
+      },
+    });
+
+    newPlugin.compile({data: content, path: './app/styles/file.sass'})
+      .then(
+        result => expect(result.data).to.equal(expected),
+        error => expect(error).not.to.be.ok
+      )
+      .then(() => {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+        fs.rmdirSync(sysPath.join('app', 'styles'));
+        fs.rmdirSync('app');
+      });
+  });
 
   describe('with experimental custom functions', () => {
     it('should invoke the functions for scss', () => {
