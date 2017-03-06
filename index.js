@@ -1,3 +1,5 @@
+/* eslint camelcase: 0 */
+
 'use strict';
 
 const cp = require('child_process'), spawn = cp.spawn, exec = cp.exec;
@@ -262,7 +264,6 @@ SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
 SassCompiler.prototype.pattern = /\.s[ac]ss$/;
 SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
-// eslint-disable-next-line camelcase
 SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass';
 
 module.exports = SassCompiler;
