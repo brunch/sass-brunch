@@ -128,35 +128,48 @@ function runTests(o) {
       var content = "\
       @import \'valid1\';\n\
       @import \'../../vendor/styles/valid3\';\n\
+      @import \'../../app/styles/globbed/*\';\n\
       ";
 
       fs.mkdirSync('app');
       fs.mkdirSync('vendor');
       fs.mkdirSync(sysPath.join('app', 'styles'));
+      fs.mkdirSync(sysPath.join('app', 'styles', 'globbed'));
       fs.mkdirSync(sysPath.join('vendor', 'styles'));
+
       fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import \"./valid2.scss\";\n');
       fs.writeFileSync(sysPath.join('app', 'styles', 'valid2.scss'), '\n');
       fs.writeFileSync(sysPath.join('vendor', 'styles', '_valid3.scss'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'), '\n');
 
       var expected = [
         sysPath.join('app', 'styles', '_valid1.sass'),
         sysPath.join('app', 'styles', 'valid2.scss'),
-        sysPath.join('vendor', 'styles', '_valid3.scss')
+        sysPath.join('vendor', 'styles', '_valid3.scss'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
       ];
 
       plugin.getDependencies(content, fileName, function(error, dependencies) {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', 'valid2.scss'));
         fs.unlinkSync(sysPath.join('vendor', 'styles', '_valid3.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'globbed'));
         fs.rmdirSync(sysPath.join('app', 'styles'));
         fs.rmdirSync(sysPath.join('vendor', 'styles'));
         fs.rmdirSync('app');
         fs.rmdirSync('vendor');
+
         expect(error).not.to.be.ok;
         expect(dependencies.length).to.eql(expected.length);
+
         expected.forEach(function (item){
           expect(dependencies.indexOf(item)).to.be.greaterThan(-1);
         });
+
         done();
       });
     });
@@ -235,6 +248,56 @@ function runTests(o) {
 
 describe('sass-brunch plugin using native', function() {
   var compress = function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; };
+
+  it(`should import files via glob`, function(done) {
+
+    var sassContent = '.something\n  background: red';
+    var scssContent = '.something-else {\n  background: blue;\n}';
+    var content = '@import "./sub_dir/*"';
+
+    var expected = '.something {\n  background: red; }\n\n.something-else {\n  background: blue; }\n\n';
+
+    fs.mkdirSync('app');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'), sassContent);
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'), scssContent);
+
+    newPlugin = new Plugin({
+      paths: {root: '.'},
+      sourceMapEmbed: false,
+      plugins: {
+        sass: {
+          mode: 'native',
+          modules: false
+        }
+      }
+    });
+
+    newPlugin.compile({data: content, path: './app/styles/file.sass'}).then(result => {
+      var data = result.data;
+      expect(data).to.equal(expected);
+
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync('app');
+
+    }, error => expect(error).not.to.be.ok)
+    .catch( (err) => {
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync('app');
+      done(err)
+    });
+
+    done();
+  });
+
+
   describe('with experimental custom functions', function() {
 
     it('should invoke the functions for scss', function(done) {

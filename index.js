@@ -7,6 +7,7 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
+const nodeSassGlobbing = require('node-sass-globbing');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -89,16 +90,21 @@ class SassCompiler {
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
     }
+
     this.getDependencies = progeny({
       rootPath: this.rootPath,
       altPaths: this.includePaths,
-      reverseArgs: true
+      reverseArgs: true,
+      globDeps: true
     });
+
+
     this.seekCompass = promisify(progeny({
       rootPath: this.rootPath,
       exclusion: '',
       potentialDeps: true
     }));
+
     /*eslint-disable camelcase */
     this.gem_home = this.config.gem_home;
     this.env = {};
@@ -166,7 +172,8 @@ class SassCompiler {
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed
+        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
+        importer: nodeSassGlobbing
       },
       (error, result) => {
         if (error) {
