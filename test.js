@@ -1,12 +1,17 @@
-var expect = require('chai').expect;
-var Plugin = require('./');
-var sysPath = require('path');
-var fs = require('fs');
+/* eslint-env mocha */
+'use strict';
 
-describe('sass-brunch plugin using', function () {
+const expect = require('chai').expect;
+const Plugin = require('./');
+const sysPath = require('path');
+const fs = require('fs');
+
+describe('sass-brunch plugin using', function() {
   runTests.call(this, {
     mode: 'native',
-    compress: function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; }
+    compress(s) {
+      return `${s.replace(/[\s;]*/g, '')}\n\n`;
+    },
   });
 
   if (process.env.TRAVIS !== 'true') {
@@ -14,58 +19,105 @@ describe('sass-brunch plugin using', function () {
   }
 });
 
-function runTests(o) {
-  var mode = o.mode;
-  var compress = o.compress || function (s) { return s; };
+// eslint-disable-next-line
+function runTests(settings) {
+  const mode = settings.mode;
+  const compress = settings.compress || (s => s);
 
-  describe(mode, function() {
-    var plugin;
-    var config;
-    var fileName = 'app/styles/style.scss';
+  describe(mode, () => {
+    let plugin;
+    let config;
+    const fileName = 'app/styles/style.scss';
 
-    beforeEach(function() {
+    beforeEach(() => {
       config = Object.freeze({
         paths: {root: '.'},
         optimize: true,
         plugins: {
           sass: {
-            mode: mode
-          }
-        }
+            mode,
+          },
+        },
       });
       plugin = new Plugin(config);
     });
 
-    it('should be an object', function() {
+    it('should be an object', () => {
       expect(plugin).to.be.ok;
     });
 
-    it('should have a #compile method', function() {
+    it('should have a #compile method', () => {
       expect(plugin.compile).to.be.an.instanceof(Function);
     });
 
-    it('should compile and produce valid result for scss', function(done) {
-      var content = '$a: 5px; .test {\n  border-radius: $a; }\n';
-      var expected = '.test {\n  border-radius: 5px; }\n';
+    it('should compile and produce valid result for scss', () => {
+      const content = '$a: 5px; .test {\n  border-radius: $a; }\n';
+      const expected = '.test {\n  border-radius: 5px; }\n';
 
-      plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data.data).to.equal(compress(expected));
-        done();
-      }, error => expect(error).not.to.be.ok);
+      return plugin.compile({data: content, path: 'file.scss'})
+        .then(
+          data => expect(data.data).to.equal(compress(expected)),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should default to five decimals of precision for scss', function(done) {
-      var content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
-      var expected = '1.66667px';
+    it('should default to five decimals of precision for scss', () => {
+      const content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
+      const expected = '1.66667px';
 
-      plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data.data).to.contain(expected);
-        done();
-      }, error => expect(error).not.to.be.ok);
+      return plugin.compile({data: content, path: 'file.scss'})
+        .then(
+          data => expect(data.data).to.contain(expected),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should calculate to the indicated level of precision for scss', function(done) {
-      var content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
+    it('should calculate to the indicated level of precision for scss', () => {
+      const content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
+      const expected = '1.66666667px';
+
+      plugin = new Plugin({
+        paths: config.paths,
+        optimize: config.optimize,
+        plugins: {
+          sass: {
+            precision: 8,
+            mode,
+          },
+        },
+      });
+
+      return plugin.compile({data: content, path: 'file.scss'})
+        .then(
+          data => expect(data.data).to.contain(expected),
+          error => expect(error).not.to.be.ok
+        );
+    });
+
+    it('should compile and produce valid result for sass', () => {
+      const content = '$a: 5px\n.test\n  border-radius: $a';
+      const expected = '.test {\n  border-radius: 5px; }\n';
+
+      return plugin.compile({data: content, path: 'file.sass'})
+        .then(
+          data => expect(data.data).to.equal(compress(expected)),
+          error => expect(error).not.to.be.ok
+        );
+    });
+
+    it('should default to five decimals of precision for sass', () => {
+      const content = '$a: 5px\n.test\n  border-radius: $a/3';
+      const expected = '1.66667px';
+
+      return plugin.compile({data: content, path: 'file.sass'})
+        .then(
+          data => expect(data.data).to.contain(expected),
+          error => expect(error).not.to.be.ok
+        );
+    });
+
+    it('should calculate to the indicated level of precision for sass', done => {
+      var content = '$a: 5px\n.test\n  border-radius: $a/3';
       var expected = '1.66666667px';
       plugin = new Plugin({
         paths: config.paths,
@@ -73,49 +125,9 @@ function runTests(o) {
         plugins: {
           sass: {
             precision: 8,
-            mode: mode
-          }
-        }
-      });
-
-      plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data.data).to.contain(expected);
-        done();
-      }, error => expect(error).not.to.be.ok);
-    });
-
-    it('should compile and produce valid result for sass', function(done) {
-      var content = '$a: 5px\n.test\n  border-radius: $a';
-      var expected = '.test {\n  border-radius: 5px; }\n';
-
-      plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data.data).to.equal(compress(expected));
-        done();
-      }, error => expect(error).not.to.be.ok);
-    });
-
-    it('should default to five decimals of precision for sass', function(done) {
-      var content = '$a: 5px\n.test\n  border-radius: $a/3';
-      var expected = '1.66667px';
-
-      plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data.data).to.contain(expected);
-        done();
-      }, error => expect(error).not.to.be.ok);
-    });
-
-    it('should calculate to the indicated level of precision for sass', function(done) {
-      var content = '$a: 5px\n.test\n  border-radius: $a/3';
-      var expected = '1.66666667px';
-      plugin = new Plugin({
-        paths: config.paths,
-        optimize: config.optimize,
-        plugins: {
-          sass: {
-            precision: 8,
-            mode: mode
-          }
-        }
+            mode,
+          },
+        },
       });
 
       plugin.compile({data: content, path: 'file.sass'}).then(data => {
@@ -124,164 +136,226 @@ function runTests(o) {
       }, error => expect(error).not.to.be.ok);
     });
 
-    it('should output valid deps', function(done) {
-      var content = "\
-      @import \'valid1\';\n\
-      @import \'../../vendor/styles/valid3\';\n\
-      ";
+    it('should output valid deps', done => {
+      const content = `
+      @import 'valid1';
+      @import '../../vendor/styles/valid3';
+      @import '../../app/styles/globbed/*';
+      `;
 
       fs.mkdirSync('app');
       fs.mkdirSync('vendor');
       fs.mkdirSync(sysPath.join('app', 'styles'));
+      fs.mkdirSync(sysPath.join('app', 'styles', 'globbed'));
       fs.mkdirSync(sysPath.join('vendor', 'styles'));
-      fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import \"./valid2.scss\";\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', '_valid1.sass'), '@import "./valid2.scss";');
       fs.writeFileSync(sysPath.join('app', 'styles', 'valid2.scss'), '\n');
       fs.writeFileSync(sysPath.join('vendor', 'styles', '_valid3.scss'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'), '\n');
+      fs.writeFileSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'), '\n');
 
-      var expected = [
+      const expected = [
         sysPath.join('app', 'styles', '_valid1.sass'),
         sysPath.join('app', 'styles', 'valid2.scss'),
-        sysPath.join('vendor', 'styles', '_valid3.scss')
+        sysPath.join('vendor', 'styles', '_valid3.scss'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
       ];
 
       plugin.getDependencies(content, fileName, function(error, dependencies) {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', 'valid2.scss'));
         fs.unlinkSync(sysPath.join('vendor', 'styles', '_valid3.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'globbed'));
         fs.rmdirSync(sysPath.join('app', 'styles'));
         fs.rmdirSync(sysPath.join('vendor', 'styles'));
         fs.rmdirSync('app');
         fs.rmdirSync('vendor');
+
         expect(error).not.to.be.ok;
         expect(dependencies.length).to.eql(expected.length);
-        expected.forEach(function (item){
-          expect(dependencies.indexOf(item)).to.be.greaterThan(-1);
-        });
+
+        expected.forEach(item =>
+          expect(dependencies.indexOf(item)).to.be.greaterThan(-1)
+        );
+
         done();
       });
     });
 
-    it('should return empty result for empty source', function(done) {
-      var content = '   \t\n';
-      var expected = '';
-      plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data.data).to.equal(expected)
-        done();
-      }, error => expect(error).not.to.be.ok);
+    it('should return empty result for empty source', () => {
+      const content = '   \t\n';
+      const expected = '';
+
+      return plugin.compile({data: content, path: 'file.scss'})
+        .then(
+          data => expect(data.data).to.equal(expected),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should save without error', function(done) {
-      var content = '$var: () !default;' +
-        '@function test($value) {\n' +
-        '\t@if index($var, $value) {\n' +
-        '\t\t@return false;' +
-        '\t}' +
-        '\t$var: append($var, $value) !global;\n' +
-        '\t@return true;' +
-        '}';
-        var expected = '';
-        plugin.compile({data: content, path: 'no-content.scss'}).then(data => {
-          expect(data.data.trim()).to.equal(expected);
-          done();
-        }, error => expect(error).not.to.be.ok);
+    it('should save without error', () => {
+      const content = `
+        $var: () !default;
+        @function test($value) {
+          @if index($var, $value) {
+            @return false;
+          }
+          $var: append($var, $value) !global;
+          @return true;
+        }`;
+      const expected = '';
+
+
+      return plugin.compile({data: content, path: 'no-content.scss'})
+        .then(
+          data => expect(data.data.trim()).to.equal(expected),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should compile with modules', function(done) {
-      var content = '.class {color: #6b0;}';
-      var expected = /^\._class_/
+    it('should compile with modules', () => {
+      const content = '.class {color: #6b0;}';
+      const expected = /^\._class_/;
 
-      newPlugin = new Plugin({
+      const newPlugin = new Plugin({
         paths: {root: '.'},
         plugins: {
           sass: {
-            mode: mode,
+            mode,
             modules: true,
-          }
-        }
+          },
+        },
       });
 
-      newPlugin.compile({data: content, path: 'file.scss'}).then(result => {
-        var data = result.data;
-        expect(data).to.match(expected);
-        done();
-      }, error => expect(error).not.to.be.ok)
-      .catch( (err) => done(err) );
+      return newPlugin.compile({data: content, path: 'file.scss'})
+        .then(
+          result => expect(result.data).to.match(expected),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should skip modulifying files passed to ignore', function(done) {
-      var content = '.class {color: #6b0;}';
-      var expected = /^\.class \{/
+    it('should skip modulifying files passed to ignore', () => {
+      const content = '.class {color: #6b0;}';
+      const expected = /^\.class \{/;
 
-      newPlugin = new Plugin({
+      const newPlugin = new Plugin({
         paths: {root: '.'},
         plugins: {
           sass: {
-            mode: mode,
-            modules: {ignore: [/file\.scss/]}
-          }
-        }
+            mode,
+            modules: {ignore: [/file\.scss/]},
+          },
+        },
       });
 
-      newPlugin.compile({data: content, path: 'file.scss'}).then(result => {
-        var data = result.data;
-        expect(data).to.match(expected);
-        done();
-      }, error => expect(error).not.to.be.ok)
-      .catch( (err) => done(err) );
+      return newPlugin.compile({data: content, path: 'file.scss'})
+        .then(
+          result => expect(result.data).to.match(expected),
+          error => expect(error).not.to.be.ok
+        );
     });
   });
 };
 
+describe('sass-brunch plugin using native', () => {
+  const compress = str => `${str.replace(/[\s;]*/g, '')}\n\n`;
 
-describe('sass-brunch plugin using native', function() {
-  var compress = function (s) { return s.replace(/[\s;]*/g, '') + '\n\n'; };
-  describe('with experimental custom functions', function() {
+  it(`should import files via glob`, () => {
+    const sassContent = '.something\n  background: red';
+    const scssContent = '.something-else {\n  background: blue;\n}';
+    const content = '@import "./sub_dir/*"';
 
-    it('should invoke the functions for scss', function(done) {
-      var config = Object.freeze({
+    const expected = '.something {\n  background: red; }\n\n.something-else {\n  background: blue; }\n\n';
+
+    fs.mkdirSync('app');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'), sassContent);
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'), scssContent);
+
+    const newPlugin = new Plugin({
+      paths: {root: '.'},
+      sourceMapEmbed: false,
+      plugins: {
+        sass: {
+          mode: 'native',
+          modules: false,
+        },
+      },
+    });
+
+    newPlugin.compile({data: content, path: './app/styles/file.sass'})
+      .then(
+        result => expect(result.data).to.equal(expected),
+        error => expect(error).not.to.be.ok
+      )
+      .then(() => {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+        fs.rmdirSync(sysPath.join('app', 'styles'));
+        fs.rmdirSync('app');
+      });
+  });
+
+  describe('with experimental custom functions', () => {
+    it('should invoke the functions for scss', () => {
+      const config = Object.freeze({
         paths: {root: '.'},
         optimize: true,
         plugins: {
           sass: {
             mode: 'native',
-            functions: { pow: (val, exp) => require('node-sass').types.Number(Math.pow(val.getValue(), exp.getValue()), val.getUnit()) }
-          }
-        }
+            functions: {
+              pow: (val, exp) => require('node-sass').types.Number(
+                Math.pow(val.getValue(), exp.getValue()),
+                val.getUnit()
+              ),
+            },
+          },
+        },
       });
-      var plugin = new Plugin(config);
+      const plugin = new Plugin(config);
 
-      var content = '.test {\n  border-radius: pow(2px,10); }\n';
-      var expected = '.test {\n  border-radius: 1024px; }\n';
+      const content = '.test {\n  border-radius: pow(2px,10); }\n';
+      const expected = '.test {\n  border-radius: 1024px; }\n';
 
-      plugin.compile({data: content, path: 'file.scss'}).then(data => {
-        expect(data.data).to.equal(compress(expected));
-        done();
-      }, error => expect(error).not.to.be.ok)
-      .catch( (err) => done(err) );
+      return plugin.compile({data: content, path: 'file.scss'})
+        .then(
+          data => expect(data.data).to.equal(compress(expected)),
+          error => expect(error).not.to.be.ok
+        );
     });
 
-    it('should invoke the functions for sass', function(done) {
-      var config = Object.freeze({
+    it('should invoke the functions for sass', () => {
+      const config = Object.freeze({
         paths: {root: '.'},
         optimize: true,
         plugins: {
           sass: {
             mode: 'native',
-            functions: { pow: (val, exp) => require('node-sass').types.Number(Math.pow(val.getValue(), exp.getValue()), val.getUnit()) }
-          }
-        }
+            functions: {
+              pow: (val, exp) => require('node-sass').types.Number(
+                Math.pow(val.getValue(), exp.getValue()),
+                val.getUnit()
+              ),
+            },
+          },
+        },
       });
-      var plugin = new Plugin(config);
+      const plugin = new Plugin(config);
 
-      var content = '.test \n  border-radius: pow(2px,10);\n';
-      var expected = '.test {\n  border-radius: 1024px; }\n';
+      const content = '.test \n  border-radius: pow(2px,10);\n';
+      const expected = '.test {\n  border-radius: 1024px; }\n';
 
-      plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data.data).to.equal(compress(expected));
-        done();
-      }, error => expect(error).not.to.be.ok)
-      .catch( (err) => done(err) );
+      return plugin.compile({data: content, path: 'file.sass'})
+        .then(
+          data => expect(data.data).to.equal(compress(expected)),
+          error => expect(error).not.to.be.ok
+        );
     });
-
   });
 });

@@ -1,3 +1,5 @@
+/* eslint camelcase: 0 */
+
 'use strict';
 
 const cp = require('child_process'), spawn = cp.spawn, exec = cp.exec;
@@ -7,18 +9,23 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
+const nodeSassGlobbing = require('node-sass-globbing');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
 
 const cssModulify = (path, data, map, options) => {
   let json = {};
-  const getJSON = (_, _json) => json = _json;
+  const getJSON = (_, _json) => json = _json; // eslint-disable-line
 
   return postcss([postcssModules(Object.assign({}, {getJSON}, options))])
     .process(data, {from: path, map}).then(x => {
-      const exports = 'module.exports = ' + JSON.stringify(json) + ';';
-      return { data: x.css, map: x.map, exports };
+      const exports = `module.exports = ${JSON.stringify(json)};`;
+      return {
+        exports,
+        data: x.css,
+        map: x.map,
+      };
     });
 };
 
@@ -26,15 +33,15 @@ const isWindows = os.platform() === 'win32';
 const compassRe = /compass/;
 const sassRe = /\.sass$/;
 
-const formatRe = /(on line \d+ of ([/\.\w]+))/;
+const formatRe = /(on line \d+ of ([/.\w]+))/;
 const formatError = (path, err) => {
   let loc = `L${err.line}:${err.column}`;
-  let code = err.formatted.replace('Error: ' + err.message, '');
+  let code = err.formatted.replace(`Error: ${err.message}`, '');
   const match = code.match(formatRe);
   code = code.replace(formatRe, '');
   const erroredPath = match[2];
 
-  loc += (erroredPath === path) ? ': ' : ` of ${erroredPath}. `;
+  loc += erroredPath === path ? ': ' : ` of ${erroredPath}. `;
 
   const error = new Error(`${loc}\n${err.message} ${code}`);
   error.name = '';
@@ -46,7 +53,7 @@ const promiseSpawnAndPipe = (cmd, args, env, data) => {
   let error;
 
   return new Promise((resolve, reject) => {
-    var sass = spawn(cmd, args, env);
+    const sass = spawn(cmd, args, env);
     sass.stdout.on('data', buffer => {
       result += buffer.toString();
     });
@@ -73,7 +80,7 @@ class SassCompiler {
     if (cfg == null) cfg = {};
     this.rootPath = cfg.paths.root;
     this.optimize = cfg.optimize;
-    this.config = (cfg.plugins && cfg.plugins.sass) || {};
+    this.config = cfg.plugins && cfg.plugins.sass || {};
     this.modules = this.config.modules || this.config.cssModules;
 
     if (this.modules && this.modules.ignore) {
@@ -89,29 +96,19 @@ class SassCompiler {
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
     }
-    this.getDependencies = progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true
-    });
-    this.seekCompass = promisify(progeny({
-      rootPath: this.rootPath,
-      exclusion: '',
-      potentialDeps: true
-    }));
-    /*eslint-disable camelcase */
+
+    /* eslint-disable camelcase */
     this.gem_home = this.config.gem_home;
     this.env = {};
     if (this.gem_home) {
       const env = Object.assign({}, process.env);
       env.GEM_HOME = this.gem_home;
-      this.env = {
-        env: env
-      };
-      this._bin = this.gem_home + '/bin/' + this._bin;
-      this._compass_bin = this.gem_home + '/bin/' + this._compass_bin;
+      this.env = {env};
+      this._bin = `${this.gem_home}/bin/${this._bin}`;
+      this._compass_bin = `${this.gem_home}/bin/${this._compass_bin}`;
     }
-    /*eslint-enable camelcase */
+    /* eslint-enable camelcase */
+
     this.bundler = this.config.useBundler;
     this.prefix = this.bundler ? 'bundle exec ' : '';
   }
@@ -119,8 +116,8 @@ class SassCompiler {
   _checkRuby() {
     const prefix = this.prefix;
     const env = this.env;
-    const sassCmd = prefix + this._bin + ' --version';
-    const compassCmd = prefix + this._compass_bin + ' --version';
+    const sassCmd = `${prefix}${this._bin} --version`;
+    const compassCmd = `${prefix}${this._compass_bin} --version`;
 
     const sassPromise = new Promise((resolve, reject) => {
       exec(sassCmd, env, error => {
@@ -160,32 +157,29 @@ class SassCompiler {
         data: source.data,
         precision: this.config.precision,
         includePaths: this._getIncludePaths(source.path),
-        outputStyle: (this.optimize ? 'compressed' : 'nested'),
+        outputStyle: this.optimize ? 'compressed' : 'nested',
         sourceComments: hasComments,
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed
+        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
+        importer: nodeSassGlobbing,
       },
       (error, result) => {
         if (error) {
           return reject(formatError(source.path, error));
-        } else {
-          const css = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
-          const map = JSON.parse(result.map.toString());
-          resolve({data: css, map: map});
         }
+        const data = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
+        const map = JSON.parse(result.map.toString());
+        resolve({data, map});
       });
     });
   }
 
   _rubyCompile(source) {
     if (this.rubyPromise == null) this._checkRuby();
-    let cmd = [
-      this._bin,
-      '--stdin'
-    ];
+    let cmd = [this._bin, '--stdin'];
 
     const includePaths = this._getIncludePaths(source.path);
     includePaths.forEach(path => {
@@ -203,18 +197,35 @@ class SassCompiler {
         cmd.push(hasComments ? '--line-comments' : '--debug-info');
       }
 
-      if (this.config.precision) cmd.push('--precision=' + this.config.precision);
+      if (this.config.precision) cmd.push(`--precision=${this.config.precision}`);
       if (!sassRe.test(source.path)) cmd.push('--scss');
       if (source.compass && this.compass) cmd.push('--compass');
       if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
 
       if (isWindows) {
-        cmd = ['cmd', '/c', '"' + cmd[0] + '"'].concat(cmd.slice(1));
+        cmd = ['cmd', '/c', `"${cmd[0]}"`].concat(cmd.slice(1));
         this.env.windowsVerbatimArguments = true;
       }
 
-      return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data).then(d => { return {data: d}; });
+      return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data).then(data => ({data}));
     });
+  }
+
+  get getDependencies() {
+    return progeny({
+      rootPath: this.rootPath,
+      altPaths: this.includePaths,
+      reverseArgs: true,
+      globDeps: true,
+    });
+  }
+
+  get seekCompass() {
+    return promisify(progeny({
+      rootPath: this.rootPath,
+      exclusion: '',
+      potentialDeps: true,
+    }));
   }
 
   compile(params) {
@@ -226,25 +237,25 @@ class SassCompiler {
 
     return this.seekCompass(path, data).then(imports => {
       const source = {
-        data: data,
-        path: path,
-        compass: imports.some(depPath => compassRe.test(depPath))
+        data,
+        path,
+        compass: imports.some(depPath => compassRe.test(depPath)),
       };
 
       const fileUsesRuby = sassRe.test(path) || source.compass;
 
-      if (this.mode === 'ruby' || (this.mode !== 'native' && fileUsesRuby)) {
+      if (this.mode === 'ruby' || this.mode !== 'native' && fileUsesRuby) {
         return this._rubyCompile(source);
-      } else {
-        return this._nativeCompile(source);
       }
+
+      return this._nativeCompile(source);
     }).then(params => {
       if (this.modules && !this.isIgnored(path)) {
         const moduleOptions = this.modules === true ? {} : this.modules;
         return cssModulify(path, params.data, params.map, moduleOptions);
-      } else {
-        return params;
       }
+
+      return params;
     });
   }
 }
@@ -253,6 +264,6 @@ SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
 SassCompiler.prototype.pattern = /\.s[ac]ss$/;
 SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
-SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass'; //eslint-disable-line camelcase
+SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass';
 
 module.exports = SassCompiler;
