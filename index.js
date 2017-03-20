@@ -9,7 +9,6 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
-const nodeSassGlobbing = require('node-sass-globbing');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -162,9 +161,9 @@ class SassCompiler {
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
+        importer: this.config.importer,
         sourceMap: true,
         sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-        importer: nodeSassGlobbing,
       },
       (error, result) => {
         if (error) {
