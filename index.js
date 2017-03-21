@@ -262,6 +262,7 @@ class SassCompiler {
 SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
 SassCompiler.prototype.pattern = /\.s[ac]ss$/;
+SassCompiler.prototype.targetExtension = 'css';
 SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
 SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass';
 
