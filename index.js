@@ -233,6 +233,9 @@ class SassCompiler {
 
     // skip empty source files
     if (!data.trim().length) return Promise.resolve({data: ''});
+    
+    // skip submodules
+    if(sysPath.basename(path).startsWith('_')) return Promise.resolve({data: ''})
 
     return this.seekCompass(path, data).then(imports => {
       const source = {
