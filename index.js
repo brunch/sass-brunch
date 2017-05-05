@@ -5,6 +5,7 @@
 const cp = require('child_process'), spawn = cp.spawn, exec = cp.exec;
 const sysPath = require('path');
 const progeny = require('progeny');
+const deasync = require('deasync');
 const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
@@ -75,7 +76,7 @@ const promiseSpawnAndPipe = (cmd, args, env, data) => {
 };
 
 class SassCompiler {
-  constructor(cfg) {
+  constructor (cfg) {
     if (cfg == null) cfg = {};
     this.rootPath = cfg.paths.root;
     this.optimize = cfg.optimize;
@@ -110,9 +111,11 @@ class SassCompiler {
 
     this.bundler = this.config.useBundler;
     this.prefix = this.bundler ? 'bundle exec ' : '';
+
+    this._nativeCompileSync = deasync(this._nativeCompile);
   }
 
-  _checkRuby() {
+  _checkRuby () {
     const prefix = this.prefix;
     const env = this.env;
     const sassCmd = `${prefix}${this._bin} --version`;
@@ -138,7 +141,7 @@ class SassCompiler {
     this.rubyPromise = Promise.all([sassPromise, compassPromise]);
   }
 
-  _getIncludePaths(path) {
+  _getIncludePaths (path) {
     let includePaths = [this.rootPath, sysPath.dirname(path)];
     if (Array.isArray(this.includePaths)) {
       includePaths = includePaths.concat(this.includePaths);
@@ -146,37 +149,38 @@ class SassCompiler {
     return includePaths;
   }
 
-  _nativeCompile(source) {
+  _nativeCompile (source) {
     return new Promise((resolve, reject) => {
       var debugMode = this.config.debug;
       var hasComments = debugMode === 'comments' && !this.optimize;
 
       libsass.render({
-        file: source.path,
-        data: source.data,
-        precision: this.config.precision,
-        includePaths: this._getIncludePaths(source.path),
-        outputStyle: this.optimize ? 'compressed' : 'nested',
-        sourceComments: hasComments,
-        indentedSyntax: sassRe.test(source.path),
-        outFile: 'a.css',
-        functions: this.config.functions,
-        importer: this.config.importer,
-        sourceMap: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-      },
-      (error, result) => {
-        if (error) {
-          return reject(formatError(source.path, error));
-        }
-        const data = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
-        const map = JSON.parse(result.map.toString());
-        resolve({data, map});
-      });
+          file: source.path,
+          data: source.data,
+          precision: this.config.precision,
+          includePaths: this._getIncludePaths(source.path),
+          outputStyle: this.optimize ? 'compressed' : 'nested',
+          sourceComments: hasComments,
+          indentedSyntax: sassRe.test(source.path),
+          outFile: 'a.css',
+          functions: this.config.functions,
+          importer: this.config.importer,
+          sourceMap: true,
+          sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
+        },
+        (error, result) => {
+          if (error) {
+            return reject(formatError(source.path, error));
+          }
+          const data = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
+          const includedPaths = result.stat.includePaths;
+          const map = JSON.parse(result.map.toString());
+          resolve({data, map, includedPaths});
+        });
     });
   }
 
-  _rubyCompile(source) {
+  _rubyCompile (source) {
     if (this.rubyPromise == null) this._checkRuby();
     let cmd = [this._bin, '--stdin'];
 
@@ -210,16 +214,11 @@ class SassCompiler {
     });
   }
 
-  get getDependencies() {
-    return progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true,
-      globDeps: true,
-    });
+  getDependencies (file) {
+    return this._nativeCompileSync(file).includedPaths;
   }
 
-  get seekCompass() {
+  get seekCompass () {
     return promisify(progeny({
       rootPath: this.rootPath,
       exclusion: '',
@@ -227,15 +226,15 @@ class SassCompiler {
     }));
   }
 
-  compile(params) {
+  compile (params) {
     const data = params.data;
     const path = params.path;
 
     // skip empty source files
     if (!data.trim().length) return Promise.resolve({data: ''});
-    
+
     // skip submodules
-    if(sysPath.basename(path).startsWith('_')) return Promise.resolve({data: ''})
+    if (sysPath.basename(path).startsWith('_')) return Promise.resolve({data: ''})
 
     return this.seekCompass(path, data).then(imports => {
       const source = {

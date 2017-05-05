@@ -1,3 +1,7 @@
+<div style="display:block;padding:15px;background-color:tomato;border:2px dashed #8b0000;border-radius:6px;text-align:center">
+    <b style="display:block;font-size:32px;">Forked from brunch/sass-brunch</b>The original Plugin didn't worked properly and made me pissed, this is better.
+</div>
+
 ## sass-brunch
 Adds Sass support to
 [brunch](http://brunch.io).
