@@ -34,7 +34,7 @@
     "chai": "~4.1.0",
     "eslint": "~4.3.0",
     "eslint-config-brunch": "zazaian/eslint-config-brunch",
-    "mocha": "^2.0.1"
+    "mocha": "~3.5.0"
   },
   "eslintConfig": {
     "extends": "brunch"
