@@ -22,7 +22,7 @@
     "test": "eslint index.js && mocha"
   },
   "dependencies": {
-    "anymatch": "^1.3.0",
+    "anymatch": "~1.3.2",
     "micro-promisify": "~0.1.1",
     "node-sass": "^4.0.0",
     "node-sass-globbing": "0.0.23",
