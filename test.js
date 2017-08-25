@@ -263,7 +263,7 @@ function runTests(settings) {
 describe('sass-brunch plugin using native', () => {
   const compress = str => `${str.replace(/[\s;]*/g, '')}\n\n`;
 
-  it(`should import files via glob`, () => {
+  it(`should import files via glob`, ((done) => {
     const sassContent = '.something\n  background: red';
     const scssContent = '.something-else {\n  background: blue;\n}';
     const content = '@import "./sub_dir/*"';
@@ -283,6 +283,46 @@ describe('sass-brunch plugin using native', () => {
         sass: {
           mode: 'native',
           modules: false,
+        },
+      },
+    });
+
+    newPlugin.compile({data: content, path: './app/styles/file.sass'})
+      .then(
+        result => expect(result.data).to.equal(expected),
+        error => expect(error).not.to.be.ok
+      )
+      .then(() => {
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+        fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+        fs.rmdirSync(sysPath.join('app', 'styles'));
+        fs.rmdirSync('app');
+        done();
+      });
+  }));
+
+  it(`should import files via glob if specified explicitly via the importer option`, () => {
+    const sassContent = '.something\n  background: red';
+    const scssContent = '.something-else {\n  background: blue;\n}';
+    const content = '@import "./sub_dir/*"';
+
+    const expected = '.something {\n  background: red; }\n\n.something-else {\n  background: blue; }\n\n';
+
+    fs.mkdirSync('app');
+    fs.mkdirSync(sysPath.join('app', 'styles'));
+    fs.mkdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'), sassContent);
+    fs.writeFileSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'), scssContent);
+
+    const newPlugin = new Plugin({
+      paths: {root: '.'},
+      sourceMapEmbed: false,
+      plugins: {
+        sass: {
+          options: {
+            importer: ['node-sass-globbing'],
+          },
         },
       },
     });

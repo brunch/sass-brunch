@@ -152,6 +152,11 @@ class SassCompiler {
       var debugMode = this.config.debug;
       var hasComments = debugMode === 'comments' && !this.optimize;
 
+      const importer =
+        this.config.options && this.config.options.importer ?
+          this.config.options.importer.map(require) :
+          nodeSassGlobbing;
+
       libsass.render({
         file: source.path,
         data: source.data,
@@ -164,7 +169,7 @@ class SassCompiler {
         functions: this.config.functions,
         sourceMap: true,
         sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-        importer: nodeSassGlobbing,
+        importer,
       },
       (error, result) => {
         if (error) {
