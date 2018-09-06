@@ -111,6 +111,12 @@ class SassCompiler {
 
     this.bundler = this.config.useBundler;
     this.prefix = this.bundler ? 'bundle exec ' : '';
+    this._progeny = progeny({
+      rootPath: this.rootPath,
+      altPaths: this.includePaths,
+      reverseArgs: true,
+      globDeps: true,
+    });
   }
 
   _checkRuby() {
@@ -211,13 +217,8 @@ class SassCompiler {
     });
   }
 
-  getDependencies() {
-    return progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true,
-      globDeps: true,
-    });
+  getDependencies(file) {
+    return promisify(this._progeny)(file.path, file.data);
   }
 
   get seekCompass() {

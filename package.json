@@ -1,6 +1,6 @@
 {
   "name": "sass-brunch",
-  "version": "2.10.6",
+  "version": "2.10.7",
   "description": "Adds Sass support to Brunch.",
   "author": "Paul Miller (http://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
@@ -28,7 +28,7 @@
     "node-sass-globbing": "0.0.23",
     "postcss": "~6.0.8",
     "postcss-modules": "~0.8.0",
-    "progeny": "~0.11.0"
+    "progeny": "~0.12.0"
   },
   "devDependencies": {
     "chai": "~4.1.0",
