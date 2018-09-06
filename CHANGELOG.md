@@ -1,3 +1,6 @@
+# sass-brunch 2.10.5 (Oct 31, 2016)
+* Updated dependencies
+
 # sass-brunch 2.6.2 (Apr 5, 2016)
 * Add source map support for `native`
 
