@@ -2,7 +2,7 @@
   "name": "sass-brunch",
   "version": "2.10.7",
   "description": "Adds Sass support to Brunch.",
-  "author": "Paul Miller (http://paulmillr.com/)",
+  "author": "Paul Miller (https://paulmillr.com/)",
   "homepage": "https://github.com/brunch/sass-brunch",
   "license": "MIT",
   "keywords": [
