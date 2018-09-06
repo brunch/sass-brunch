@@ -211,7 +211,7 @@ class SassCompiler {
     });
   }
 
-  get getDependencies() {
+  getDependencies() {
     return progeny({
       rootPath: this.rootPath,
       altPaths: this.includePaths,
@@ -220,7 +220,7 @@ class SassCompiler {
     });
   }
 
-  get seekCompass() {
+  seekCompass() {
     return promisify(progeny({
       rootPath: this.rootPath,
       exclusion: '',
