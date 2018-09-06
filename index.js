@@ -220,7 +220,7 @@ class SassCompiler {
     });
   }
 
-  seekCompass() {
+  get seekCompass() {
     return promisify(progeny({
       rootPath: this.rootPath,
       exclusion: '',
