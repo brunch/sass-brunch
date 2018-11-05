@@ -133,14 +133,17 @@ function runTests(settings) {
       plugin.compile({data: content, path: 'file.sass'}).then(data => {
         expect(data.data).to.contain(expected);
         done();
-      }, error => expect(error).not.to.be.ok);
+      }, error => {
+        expect(error).not.to.be.ok
+        done();
+      });
     });
 
     it('should output valid deps', done => {
       const content = `
       @import 'valid1';
       @import '../../vendor/styles/valid3';
-      @import '../../app/styles/globbed/*';
+      @import '../../app/styles/globbed/**';
       `;
 
       fs.mkdirSync('app');
@@ -285,18 +288,23 @@ describe('sass-brunch plugin using native', () => {
       },
     });
 
+    const cleanFixtures = () => {
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
+      fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
+      fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
+      fs.rmdirSync(sysPath.join('app', 'styles'));
+      fs.rmdirSync('app');
+    }
+
     newPlugin.compile({data: content, path: './app/styles/file.sass'})
       .then(
         result => expect(result.data).to.equal(expected),
         error => expect(error).not.to.be.ok
       )
-      .then(() => {
-        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob1.sass'));
-        fs.unlinkSync(sysPath.join('app', 'styles', 'sub_dir', '_glob2.scss'));
-        fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
-        fs.rmdirSync(sysPath.join('app', 'styles'));
-        fs.rmdirSync('app');
-      });
+      .then(
+        result => cleanFixtures(),
+        error => cleanFixtures()
+      );
   });
 
   describe('with experimental custom functions', () => {
