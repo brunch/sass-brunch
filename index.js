@@ -99,7 +99,7 @@ class SassCompiler {
     this.getDependencies = progeny({
       rootPath: this.rootPath,
       altPaths: this.includePaths,
-      reverseArgs: true
+      reverseArgs: true,
     });
 
     /* eslint-disable camelcase */
