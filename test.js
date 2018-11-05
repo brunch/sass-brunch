@@ -143,7 +143,7 @@ function runTests(settings) {
       const content = `
       @import 'valid1';
       @import '../../vendor/styles/valid3';
-      @import '../../app/styles/globbed/**';
+      @import '../../app/styles/globbed/*';
       `;
 
       fs.mkdirSync('app');
@@ -160,7 +160,9 @@ function runTests(settings) {
       const expected = [
         sysPath.join('app', 'styles', '_valid1.sass'),
         sysPath.join('app', 'styles', 'valid2.scss'),
-        sysPath.join('vendor', 'styles', '_valid3.scss')
+        sysPath.join('vendor', 'styles', '_valid3.scss'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
       ];
 
       plugin.getDependencies(content, fileName, function(error, dependencies) {

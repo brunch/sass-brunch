@@ -96,11 +96,6 @@ class SassCompiler {
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
     }
-    this.getDependencies = progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true,
-    });
 
     /* eslint-disable camelcase */
     this.gem_home = this.config.gem_home;
@@ -219,6 +214,15 @@ class SassCompiler {
       }
 
       return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data).then(data => ({data}));
+    });
+  }
+
+  get getDependencies() {
+    return progeny({
+      rootPath: this.rootPath,
+      altPaths: this.includePaths,
+      reverseArgs: true,
+      globDeps: true,
     });
   }
 
