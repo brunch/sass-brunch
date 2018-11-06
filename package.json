@@ -27,7 +27,7 @@
     "node-sass": "~4.9.2",
     "node-sass-glob-importer": "^5.2.0",
     "postcss": "~6.0.8",
-    "postcss-modules": "~0.8.0",
+    "postcss-modules": "~1.1.0",
     "progeny": "~0.12.0"
   },
   "devDependencies": {
