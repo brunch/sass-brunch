@@ -9,7 +9,7 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
-const nodeSassGlobbing = require('node-sass-globbing');
+const nodeSassGlobbing = require('node-sass-glob-importer');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -217,8 +217,13 @@ class SassCompiler {
     });
   }
 
-  getDependencies(file) {
-    return promisify(this._progeny)(file.path, file.data);
+  get getDependencies() {
+    return progeny({
+      rootPath: this.rootPath,
+      altPaths: this.includePaths,
+      reverseArgs: true,
+      globDeps: true,
+    });
   }
 
   get seekCompass() {
