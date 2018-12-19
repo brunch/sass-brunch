@@ -9,7 +9,7 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
-const nodeSassGlobbing = require('node-sass-glob-importer');
+const nodeSassGlobbing = require('node-sass-globbing');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
