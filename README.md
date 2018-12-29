@@ -1,4 +1,7 @@
-## sass-brunch
+## sass-brunch [![Build Status](https://travis-ci.org/brunch/sass-brunch.svg?branch=master)](https://travis-ci.org/brunch/sass-brunch)
+
+
+
 Adds Sass support to
 [brunch](http://brunch.io).
 
