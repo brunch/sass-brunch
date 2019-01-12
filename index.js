@@ -9,7 +9,7 @@ const libsass = require('node-sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const promisify = require('micro-promisify');
-const nodeSassGlobbing = require('node-sass-globbing');
+const nodeSassGlobbing = require('node-sass-glob-importer');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -170,7 +170,7 @@ class SassCompiler {
         functions: this.config.functions,
         sourceMap: true,
         sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-        importer: nodeSassGlobbing,
+        importer: nodeSassGlobbing(),
       },
       (error, result) => {
         if (error) {
