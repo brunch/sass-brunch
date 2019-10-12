@@ -8,15 +8,11 @@ const fs = require('fs');
 
 describe('sass-brunch plugin using', function() {
   runTests.call(this, {
-    mode: 'native',
+    mode: 'dart-sass',
     compress(s) {
       return `${s.replace(/[\s;]*/g, '')}\n\n`;
     },
   });
-
-  if (process.env.TRAVIS !== 'true') {
-    runTests.call(this, {mode: 'ruby'});
-  }
 });
 
 // eslint-disable-next-line
@@ -61,31 +57,9 @@ function runTests(settings) {
         );
     });
 
-    it('should default to five decimals of precision for scss', () => {
+    it('should default to ten decimals of precision for scss', () => {
       const content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
-      const expected = '1.66667px';
-
-      return plugin.compile({data: content, path: 'file.scss'})
-        .then(
-          data => expect(data.data).to.contain(expected),
-          error => expect(error).not.to.be.ok
-        );
-    });
-
-    it('should calculate to the indicated level of precision for scss', () => {
-      const content = '$a: 5px; .test {\n  border-radius: $a/3; }\n';
-      const expected = '1.66666667px';
-
-      plugin = new Plugin({
-        paths: config.paths,
-        optimize: config.optimize,
-        plugins: {
-          sass: {
-            precision: 8,
-            mode,
-          },
-        },
-      });
+      const expected = '1.6666666667px';
 
       return plugin.compile({data: content, path: 'file.scss'})
         .then(
@@ -105,38 +79,15 @@ function runTests(settings) {
         );
     });
 
-    it('should default to five decimals of precision for sass', () => {
+    it('should default to ten decimals of precision for sass', () => {
       const content = '$a: 5px\n.test\n  border-radius: $a/3';
-      const expected = '1.66667px';
+      const expected = '1.6666666667px';
 
       return plugin.compile({data: content, path: 'file.sass'})
         .then(
           data => expect(data.data).to.contain(expected),
           error => expect(error).not.to.be.ok
         );
-    });
-
-    it('should calculate to the indicated level of precision for sass', done => {
-      var content = '$a: 5px\n.test\n  border-radius: $a/3';
-      var expected = '1.66666667px';
-      plugin = new Plugin({
-        paths: config.paths,
-        optimize: config.optimize,
-        plugins: {
-          sass: {
-            precision: 8,
-            mode,
-          },
-        },
-      });
-
-      plugin.compile({data: content, path: 'file.sass'}).then(data => {
-        expect(data.data).to.contain(expected);
-        done();
-      }, error => {
-        expect(error).not.to.be.ok
-        done();
-      });
     });
 
     it('should output valid deps', done => {
@@ -162,10 +113,10 @@ function runTests(settings) {
         sysPath.join('app', 'styles', 'valid2.scss'),
         sysPath.join('vendor', 'styles', '_valid3.scss'),
         sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
-        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass')
+        sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'),
       ];
 
-      plugin.getDependencies(content, fileName, function(error, dependencies) {
+      plugin.getDependencies(content, fileName, (error, dependencies) => {
         fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'));
         fs.unlinkSync(sysPath.join('app', 'styles', '_valid1.sass'));
@@ -261,7 +212,7 @@ function runTests(settings) {
         );
     });
   });
-};
+}
 
 describe('sass-brunch plugin using native', () => {
   const compress = str => `${str.replace(/[\s;]*/g, '')}\n\n`;
@@ -284,7 +235,6 @@ describe('sass-brunch plugin using native', () => {
       sourceMapEmbed: false,
       plugins: {
         sass: {
-          mode: 'native',
           modules: false,
         },
       },
@@ -296,7 +246,7 @@ describe('sass-brunch plugin using native', () => {
       fs.rmdirSync(sysPath.join('app', 'styles', 'sub_dir'));
       fs.rmdirSync(sysPath.join('app', 'styles'));
       fs.rmdirSync('app');
-    }
+    };
 
     newPlugin.compile({data: content, path: './app/styles/file.sass'})
       .then(
@@ -310,6 +260,8 @@ describe('sass-brunch plugin using native', () => {
   });
 
   describe('with experimental custom functions', () => {
+    const SassNumber = require('sass').types.Number;
+
     it('should invoke the functions for scss', () => {
       const config = Object.freeze({
         paths: {root: '.'},
@@ -318,7 +270,7 @@ describe('sass-brunch plugin using native', () => {
           sass: {
             mode: 'native',
             functions: {
-              pow: (val, exp) => require('node-sass').types.Number(
+              'pow($val, $exp)': (val, exp) => new SassNumber(
                 Math.pow(val.getValue(), exp.getValue()),
                 val.getUnit()
               ),
@@ -346,7 +298,7 @@ describe('sass-brunch plugin using native', () => {
           sass: {
             mode: 'native',
             functions: {
-              pow: (val, exp) => require('node-sass').types.Number(
+              'pow($val, $exp)': (val, exp) => new SassNumber(
                 Math.pow(val.getValue(), exp.getValue()),
                 val.getUnit()
               ),
@@ -356,7 +308,7 @@ describe('sass-brunch plugin using native', () => {
       });
       const plugin = new Plugin(config);
 
-      const content = '.test \n  border-radius: pow(2px,10);\n';
+      const content = '.test \n  border-radius: pow(2px,10)\n';
       const expected = '.test {\n  border-radius: 1024px; }\n';
 
       return plugin.compile({data: content, path: 'file.sass'})

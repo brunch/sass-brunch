@@ -12,7 +12,7 @@
     "sass",
     "scss",
     "libsass",
-    "node-sass"
+    "dart-sass"
   ],
   "repository": {
     "type": "git",
@@ -22,21 +22,23 @@
     "test": "eslint index.js && mocha"
   },
   "dependencies": {
-    "anymatch": "~1.3.2",
-    "micro-promisify": "~0.1.1",
-    "node-sass": "^4.13.0",
-    "node-sass-globbing": "0.0.23",
+    "anymatch": "~3.1.1",
+    "node-sass-glob-importer": "^5.3.2",
     "postcss": "~6.0.8",
     "postcss-modules": "~1.1.0",
-    "progeny": "~0.12.0"
+    "progeny": "~0.12.0",
+    "sass": "^1.23.0"
   },
   "devDependencies": {
     "chai": "~4.1.0",
     "eslint": "~4.18.2",
     "eslint-config-brunch": "zazaian/eslint-config-brunch",
-    "mocha": "~5.2.0"
+    "mocha": "~6.2.1"
   },
   "eslintConfig": {
     "extends": "brunch"
+  },
+  "engines": {
+    "node": ">=8.9.0"
   }
 }
