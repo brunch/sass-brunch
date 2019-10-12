@@ -8,7 +8,7 @@ const sass = require('sass');
 const os = require('os');
 const anymatch = require('anymatch');
 const {promisify} = require('util');
-const nodeSassGlobbing = require('node-sass-glob-importer');
+const nodeSassGlobImporter = require('node-sass-glob-importer');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -101,12 +101,21 @@ class SassCompiler {
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
+        omitSourceMapUrl: true,
         sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-        importer: nodeSassGlobbing,
+        sourceMapRoot: source.path,
+        importer: nodeSassGlobImporter(),
       });
 
-      const data = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
+      const data = `${result.css.toString()}\n\n`;
       const map = JSON.parse(result.map.toString());
+
+      // Use relative paths to avoid leaking data.
+      map.sources = map.sources.map(src => sysPath.relative(
+        this.rootPath,
+        // Brunch expects this to be a path, and doesn't handle URLs.
+        src.replace('file://', '')
+      ));
 
       return Promise.resolve({data, map});
 
