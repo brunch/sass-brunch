@@ -32,7 +32,7 @@
   "devDependencies": {
     "chai": "~4.1.0",
     "eslint": "~4.18.2",
-    "eslint-config-brunch": "zazaian/eslint-config-brunch",
+    "eslint-config-brunch": "brunch/eslint-config-brunch",
     "mocha": "~6.2.1"
   },
   "eslintConfig": {
