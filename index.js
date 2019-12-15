@@ -2,14 +2,13 @@
 
 'use strict';
 
-const cp = require('child_process'), spawn = cp.spawn, exec = cp.exec;
 const sysPath = require('path');
 const progeny = require('progeny');
-const libsass = require('node-sass');
+const sass = require('sass');
 const os = require('os');
 const anymatch = require('anymatch');
-const promisify = require('micro-promisify');
-const nodeSassGlobbing = require('node-sass-globbing');
+const {promisify} = require('util');
+const nodeSassGlobImporter = require('node-sass-glob-importer');
 
 const postcss = require('postcss');
 const postcssModules = require('postcss-modules');
@@ -35,44 +34,22 @@ const sassRe = /\.sass$/;
 
 const formatRe = /(on line \d+ of ([/.\w]+))/;
 const formatError = (path, err) => {
-  let loc = `L${err.line}:${err.column}`;
-  let code = err.formatted.replace(`Error: ${err.message}`, '');
-  const match = code.match(formatRe);
-  code = code.replace(formatRe, '');
-  const erroredPath = match[2];
+  // TODO fix error parsing with dart-sass
+  try {
+    let loc = `L${err.line}:${err.column}`;
+    let code = err.formatted.replace(`Error: ${err.message}`, '');
+    const match = code.match(formatRe);
+    code = code.replace(formatRe, '');
+    const erroredPath = match[2];
 
-  loc += erroredPath === path ? ': ' : ` of ${erroredPath}. `;
+    loc += erroredPath === path ? ': ' : ` of ${erroredPath}. `;
 
-  const error = new Error(`${loc}\n${err.message} ${code}`);
-  error.name = '';
-  return error;
-};
-
-const promiseSpawnAndPipe = (cmd, args, env, data) => {
-  let result = '';
-  let error;
-
-  return new Promise((resolve, reject) => {
-    const sass = spawn(cmd, args, env);
-    sass.stdout.on('data', buffer => {
-      result += buffer.toString();
-    });
-    sass.stderr.on('data', buffer => {
-      if (error == null) error = '';
-      error += buffer.toString();
-    });
-    sass.on('close', () => {
-      if (error) return reject(error);
-      resolve(result);
-    });
-    if (sass.stdin.write(data)) {
-      sass.stdin.end();
-    } else {
-      sass.stdin.on('drain', () => {
-        sass.stdin.end();
-      });
-    }
-  });
+    const error = new Error(`${loc}\n${err.message} ${code}`);
+    error.name = '';
+    return error;
+  } catch (doubleError) {
+    return err;
+  }
 };
 
 class SassCompiler {
@@ -92,57 +69,11 @@ class SassCompiler {
 
     delete this.config.modules;
     delete this.config.cssModules;
-    this.mode = this.config.mode;
+
     if (this.config.options != null && this.config.options.includePaths != null) {
       this.includePaths = this.config.options.includePaths;
     }
 
-    /* eslint-disable camelcase */
-    this.gem_home = this.config.gem_home;
-    this.env = {};
-    if (this.gem_home) {
-      const env = Object.assign({}, process.env);
-      env.GEM_HOME = this.gem_home;
-      this.env = {env};
-      this._bin = `${this.gem_home}/bin/${this._bin}`;
-      this._compass_bin = `${this.gem_home}/bin/${this._compass_bin}`;
-    }
-    /* eslint-enable camelcase */
-
-    this.bundler = this.config.useBundler;
-    this.prefix = this.bundler ? 'bundle exec ' : '';
-    this._progeny = progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true,
-      globDeps: true,
-    });
-  }
-
-  _checkRuby() {
-    const prefix = this.prefix;
-    const env = this.env;
-    const sassCmd = `${prefix}${this._bin} --version`;
-    const compassCmd = `${prefix}${this._compass_bin} --version`;
-
-    const sassPromise = new Promise((resolve, reject) => {
-      exec(sassCmd, env, error => {
-        if (error) {
-          console.error('You need to have Sass on your system');
-          console.error('Execute `gem install sass`');
-          reject();
-        } else {
-          resolve();
-        }
-      });
-    });
-    const compassPromise = new Promise(resolve => {
-      exec(compassCmd, env, error => {
-        this.compass = !error;
-        resolve();
-      });
-    });
-    this.rubyPromise = Promise.all([sassPromise, compassPromise]);
   }
 
   _getIncludePaths(path) {
@@ -153,68 +84,44 @@ class SassCompiler {
     return includePaths;
   }
 
-  _nativeCompile(source) {
-    return new Promise((resolve, reject) => {
-      var debugMode = this.config.debug;
-      var hasComments = debugMode === 'comments' && !this.optimize;
+  _dartCompile(source) {
+    const debugMode = this.config.debug;
+    const hasComments = debugMode === 'comments' && !this.optimize;
 
-      libsass.render({
+    try {
+      // Sync render is >2x faster (without using external deps.) according to
+      // dart-sass docs: https://github.com/sass/dart-sass#javascript-api
+      const result = sass.renderSync({
         file: source.path,
         data: source.data,
-        precision: this.config.precision,
         includePaths: this._getIncludePaths(source.path),
-        outputStyle: this.optimize ? 'compressed' : 'nested',
+        outputStyle: this.optimize ? 'compressed' : 'expanded',
         sourceComments: hasComments,
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
+        omitSourceMapUrl: true,
         sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
-        importer: nodeSassGlobbing,
-      },
-      (error, result) => {
-        if (error) {
-          return reject(formatError(source.path, error));
-        }
-        const data = result.css.toString().replace('/*# sourceMappingURL=a.css.map */', '');
-        const map = JSON.parse(result.map.toString());
-        resolve({data, map});
+        sourceMapRoot: source.path,
+        importer: nodeSassGlobImporter(),
       });
-    });
-  }
 
-  _rubyCompile(source) {
-    if (this.rubyPromise == null) this._checkRuby();
-    let cmd = [this._bin, '--stdin'];
+      const data = `${result.css.toString()}\n\n`;
+      const map = JSON.parse(result.map.toString());
 
-    const includePaths = this._getIncludePaths(source.path);
-    includePaths.forEach(path => {
-      cmd.push('--load-path');
-      cmd.push(path);
-    });
-    if (!this.config.allowCache) cmd.push('--no-cache');
+      // Use relative paths to avoid leaking data.
+      map.sources = map.sources.map(src => sysPath.relative(
+        this.rootPath,
+        // Brunch expects this to be a path, and doesn't handle URLs.
+        src.replace('file://', '')
+      ));
 
-    if (this.bundler) cmd.unshift('bundle', 'exec');
+      return Promise.resolve({data, map});
 
-    return this.rubyPromise.then(() => {
-      var debugMode = this.config.debug, hasComments;
-      if ((debugMode === 'comments' || debugMode === 'debug') && !this.optimize) {
-        hasComments = this.config.debug === 'comments';
-        cmd.push(hasComments ? '--line-comments' : '--debug-info');
-      }
-
-      if (this.config.precision) cmd.push(`--precision=${this.config.precision}`);
-      if (!sassRe.test(source.path)) cmd.push('--scss');
-      if (source.compass && this.compass) cmd.push('--compass');
-      if (this.config.options != null) cmd.push.apply(cmd, this.config.options);
-
-      if (isWindows) {
-        cmd = ['cmd', '/c', `"${cmd[0]}"`].concat(cmd.slice(1));
-        this.env.windowsVerbatimArguments = true;
-      }
-
-      return promiseSpawnAndPipe(cmd[0], cmd.slice(1), this.env, source.data).then(data => ({data}));
-    });
+    } catch (error) {
+      return Promise.reject(formatError(source.path, error));
+    }
   }
 
   get getDependencies() {
@@ -248,13 +155,7 @@ class SassCompiler {
         compass: imports.some(depPath => compassRe.test(depPath)),
       };
 
-      const fileUsesRuby = sassRe.test(path) || source.compass;
-
-      if (this.mode === 'ruby' || this.mode !== 'native' && fileUsesRuby) {
-        return this._rubyCompile(source);
-      }
-
-      return this._nativeCompile(source);
+      return this._dartCompile(source);
     }).then(params => {
       if (this.modules && !this.isIgnored(path)) {
         const moduleOptions = this.modules === true ? {} : this.modules;
