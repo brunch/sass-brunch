@@ -1,98 +1,40 @@
 ## sass-brunch [![Build Status](https://travis-ci.org/brunch/sass-brunch.svg?branch=master)](https://travis-ci.org/brunch/sass-brunch)
 
-Adds Sass support to
-[brunch](https://brunch.io).
+Adds Sass support to [Brunch](https://brunch.io).
 
 ## Usage
-Install the plugin via npm with `npm install --save-dev sass-brunch`.
-
-Or, do manual install:
-
-* Add `"sass-brunch": "x.y.z"` to `package.json` of your brunch app.
-  Pick a plugin version that corresponds to your minor (y) brunch version.
-* If you want to use git version of plugin, add
-`"sass-brunch": "git+ssh://git@github.com:brunch/sass-brunch.git"`.
+Install the plugin via npm with `npm install -S sass-brunch`.
 
 ### Options
-The default compilation method is libsass, with an automatic revert to the sass
-ruby gem for `.sass` files or if `compass` is `@import`ed. It is possible to
-set a particular mode regardless of automatic detection. If using a
-libsass-compatible compass replacement such as
-[compass-mixins](https://github.com/Igosuki/compass-mixins), it is necessary to
-set `native` mode.
-
-Note that source maps are only supported in the `native` mode.
-
-```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      mode: 'ruby' // set to 'native' to force libsass
-    }
-  }
-}
-```
 
 Set additional include paths:
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      options: {
-        includePaths: ['node_modules/foundation/scss']
-      }
-    }
-  }
-}
+includePaths: ['node_modules/foundation/scss']
 ```
 
 Print line number references as comments or sass's FireSass fake media query:
 
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      debug: 'comments' // or set to 'debug' for the FireSass-style output
-    }
-  }
-}
+debug: 'comments' // or set to 'debug' for the FireSass-style output
 ```
 
 Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
 
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      precision: 8
-    }
-  }
-}
+precision: 8
 ```
 
 Allow the ruby compiler to write its normal cache files in `.sass-cache` (disabled by default).
 This can vastly improve compilation time.
 
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      allowCache: true
-    }
-  }
-}
+allowCache: true
 ```
 
 To enable embedded source maps, pass the option `sourceMapEmbed`. This is only supported in _native_ mode; Ruby Sass isn't supported.
 
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      sourceMapEmbed: true
-    }
-  }
-}
+sourceMapEmbed: true
 ```
 
 To include the source files' name/path in either debug mode, create a parent file that `@include` your actual sass/scss source. Make sure the source files are renamed to start with an underscore (`_file.scss`), or otherwise exclude them from the build so they don't get double-included.
@@ -100,24 +42,12 @@ To include the source files' name/path in either debug mode, create a parent fil
 To pass any other options to sass:
 
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      options: ['--quiet']
-    }
-  }
-}
+options: ['--quiet']
 ```
 
 Use sass/compass installed in custom location:
 ```javascript
-module.exports = {
-  plugins: {
-    sass: {
-      gem_home: './gems'
-    }
-  }
-}
+gem_home: './gems'
 ```
 This could be useful for the environment which doesn't allow to install gems globally, such as CI server.
 
@@ -157,16 +87,7 @@ You can also pass options directly to
 [postcss-modules](https://github.com/css-modules/postcss-modules):
 
 ```javascript
-module.exports = {
-  // ...
-  plugins: {
-    sass: {
-      modules: {
-        generateScopedName: '[name]__[local]___[hash:base64:5]'
-      }
-    }
-  }
-};
+generateScopedName: '[name]__[local]___[hash:base64:5]'
 ```
 
 Then, author your styles like you normally would:
