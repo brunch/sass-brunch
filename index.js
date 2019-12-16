@@ -5,9 +5,7 @@
 const sysPath = require('path');
 const progeny = require('progeny');
 const sass = require('sass');
-const os = require('os');
 const anymatch = require('anymatch');
-const {promisify} = require('util');
 const nodeSassGlobImporter = require('node-sass-glob-importer');
 
 const postcss = require('postcss');
@@ -28,8 +26,6 @@ const cssModulify = (path, data, map, options) => {
     });
 };
 
-const isWindows = os.platform() === 'win32';
-const compassRe = /compass/;
 const sassRe = /\.sass$/;
 
 const formatRe = /(on line \d+ of ([/.\w]+))/;
@@ -53,8 +49,7 @@ const formatError = (path, err) => {
 };
 
 class SassCompiler {
-  constructor(cfg) {
-    if (cfg == null) cfg = {};
+  constructor(cfg = {}) {
     this.rootPath = cfg.paths.root;
     this.optimize = cfg.optimize;
     this.config = cfg.plugins && cfg.plugins.sass || {};
@@ -84,7 +79,19 @@ class SassCompiler {
     return includePaths;
   }
 
-  _dartCompile(source) {
+  get getDependencies() {
+    return progeny({
+      rootPath: this.rootPath,
+      altPaths: this.includePaths,
+      reverseArgs: true,
+      globDeps: true,
+    });
+  }
+
+  async compile(source) {
+    const {data, path} = source;
+    if (!data.trim().length) return Promise.resolve({data: ''}); // skip empty source files
+
     const debugMode = this.config.debug;
     const hasComments = debugMode === 'comments' && !this.optimize;
 
@@ -117,60 +124,21 @@ class SassCompiler {
         src.replace('file://', '')
       ));
 
-      return Promise.resolve({data, map});
-
-    } catch (error) {
-      return Promise.reject(formatError(source.path, error));
-    }
-  }
-
-  get getDependencies() {
-    return progeny({
-      rootPath: this.rootPath,
-      altPaths: this.includePaths,
-      reverseArgs: true,
-      globDeps: true,
-    });
-  }
-
-  get seekCompass() {
-    return promisify(progeny({
-      rootPath: this.rootPath,
-      exclusion: '',
-      potentialDeps: true,
-    }));
-  }
-
-  compile(params) {
-    const data = params.data;
-    const path = params.path;
-
-    // skip empty source files
-    if (!data.trim().length) return Promise.resolve({data: ''});
-
-    return this.seekCompass(path, data).then(imports => {
-      const source = {
-        data,
-        path,
-        compass: imports.some(depPath => compassRe.test(depPath)),
-      };
-
-      return this._dartCompile(source);
-    }).then(params => {
+      const params = {data, map};
       if (this.modules && !this.isIgnored(path)) {
         const moduleOptions = this.modules === true ? {} : this.modules;
         return cssModulify(path, params.data, params.map, moduleOptions);
       }
 
       return params;
-    });
+    } catch (error) {
+      throw formatError(source.path, error);
+    }
   }
 }
 
 SassCompiler.prototype.brunchPlugin = true;
 SassCompiler.prototype.type = 'stylesheet';
 SassCompiler.prototype.pattern = /\.s[ac]ss$/;
-SassCompiler.prototype._bin = isWindows ? 'sass.bat' : 'sass';
-SassCompiler.prototype._compass_bin = isWindows ? 'compass.bat' : 'compass';
 
 module.exports = SassCompiler;
