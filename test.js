@@ -131,6 +131,8 @@ function runTests(settings) {
         expect(error).not.to.be.ok;
         expect(dependencies.length).to.eql(expected.length);
 
+        console.log(dependencies);
+
         expected.forEach(item =>
           expect(dependencies.indexOf(item)).to.be.greaterThan(-1)
         );
