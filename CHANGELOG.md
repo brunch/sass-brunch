@@ -1,3 +1,7 @@
+# sass-brunch 3.0.0 (Mar 19, 2020)
+* Update for brunch 3
+* Switch to native node sass, remove support for ruby-sass
+
 # sass-brunch 2.6.2 (Apr 5, 2016)
 * Add source map support for `native`
 
