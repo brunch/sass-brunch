@@ -121,7 +121,7 @@ class SassCompiler {
       map.sources = map.sources.map(src => sysPath.relative(
         this.rootPath,
         // Brunch expects this to be a path, and doesn't handle URLs.
-        src.replace('file://', '')
+        src.replace('file:///', '')
       ));
 
       const params = {data, map};
