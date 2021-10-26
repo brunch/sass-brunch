@@ -90,6 +90,10 @@ function runTests(settings) {
         );
     });
 
+    function convertBackslashes(path){
+      return sysPath.sep === '\\' ? path.replace(/\\/g, '/') : file;
+    }
+
     it('should output valid deps', done => {
       const content = `
       @import 'valid1';
@@ -114,7 +118,7 @@ function runTests(settings) {
         sysPath.join('vendor', 'styles', '_valid3.scss'),
         sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'),
         sysPath.join('app', 'styles', 'globbed', '_globbed2.sass'),
-      ];
+      ].map(convertBackslashes);
 
       plugin.getDependencies(content, fileName, (error, dependencies) => {
         fs.unlinkSync(sysPath.join('app', 'styles', 'globbed', '_globbed1.sass'));
@@ -129,12 +133,12 @@ function runTests(settings) {
         fs.rmdirSync('vendor');
 
         expect(error).not.to.be.ok;
-        expect(dependencies.length).to.eql(expected.length);
+        const dependenciesConverted = dependencies.map(convertBackslashes);
 
-        console.log(dependencies);
+        expect(dependenciesConverted.length).to.eql(expected.length);
 
         expected.forEach(item =>
-          expect(dependencies.indexOf(item)).to.be.greaterThan(-1)
+          expect(dependenciesConverted.indexOf(item)).to.be.greaterThan(-1)
         );
 
         done();
