@@ -12,12 +12,6 @@ Set additional include paths:
 includePaths: ['node_modules/foundation/scss']
 ```
 
-Print line number references as comments or sass's FireSass fake media query:
-
-```javascript
-debug: 'comments' // or set to 'debug' for the FireSass-style output
-```
-
 Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
 
 ```javascript
