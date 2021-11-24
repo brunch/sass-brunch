@@ -12,38 +12,11 @@ Set additional include paths:
 includePaths: ['node_modules/foundation/scss']
 ```
 
-Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
-
-```javascript
-precision: 8
-```
-
-Allow the ruby compiler to write its normal cache files in `.sass-cache` (disabled by default).
-This can vastly improve compilation time.
-
-```javascript
-allowCache: true
-```
-
 To enable embedded source maps, pass the option `sourceMapEmbed`. This is only supported in _native_ mode; Ruby Sass isn't supported.
 
 ```javascript
 sourceMapEmbed: true
 ```
-
-To include the source files' name/path in either debug mode, create a parent file that `@include` your actual sass/scss source. Make sure the source files are renamed to start with an underscore (`_file.scss`), or otherwise exclude them from the build so they don't get double-included.
-
-To pass any other options to sass:
-
-```javascript
-options: ['--quiet']
-```
-
-Use sass/compass installed in custom location:
-```javascript
-gem_home: './gems'
-```
-This could be useful for the environment which doesn't allow to install gems globally, such as CI server.
 
 Use libsass [experimental custom functions](https://github.com/sass/node-sass#functions--v300---experimental):
 
