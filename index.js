@@ -105,7 +105,6 @@ class SassCompiler {
         functions: this.config.functions,
         sourceMap: true,
         omitSourceMapUrl: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
         sourceMapRoot: source.path,
         importer: nodeSassGlobImporter(),
       });

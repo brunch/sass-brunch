@@ -12,12 +12,6 @@ Set additional include paths:
 includePaths: ['node_modules/foundation/scss']
 ```
 
-To enable embedded source maps, pass the option `sourceMapEmbed`. This is only supported in _native_ mode; Ruby Sass isn't supported.
-
-```javascript
-sourceMapEmbed: true
-```
-
 Use libsass [experimental custom functions](https://github.com/sass/node-sass#functions--v300---experimental):
 
 ```javascript
