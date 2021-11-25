@@ -12,57 +12,17 @@ Set additional include paths:
 includePaths: ['node_modules/foundation/scss']
 ```
 
-Print line number references as comments or sass's FireSass fake media query:
+Use [custom functions](https://sass-lang.com/documentation/js-api/interfaces/LegacySharedOptions#functions) (only synchronous functions are supported):
 
 ```javascript
-debug: 'comments' // or set to 'debug' for the FireSass-style output
-```
-
-Set the precision for arithmetic operations. This is useful for building Bootstrap, Zurb Foundation, and the like.
-
-```javascript
-precision: 8
-```
-
-Allow the ruby compiler to write its normal cache files in `.sass-cache` (disabled by default).
-This can vastly improve compilation time.
-
-```javascript
-allowCache: true
-```
-
-To enable embedded source maps, pass the option `sourceMapEmbed`. This is only supported in _native_ mode; Ruby Sass isn't supported.
-
-```javascript
-sourceMapEmbed: true
-```
-
-To include the source files' name/path in either debug mode, create a parent file that `@include` your actual sass/scss source. Make sure the source files are renamed to start with an underscore (`_file.scss`), or otherwise exclude them from the build so they don't get double-included.
-
-To pass any other options to sass:
-
-```javascript
-options: ['--quiet']
-```
-
-Use sass/compass installed in custom location:
-```javascript
-gem_home: './gems'
-```
-This could be useful for the environment which doesn't allow to install gems globally, such as CI server.
-
-Use libsass [experimental custom functions](https://github.com/sass/node-sass#functions--v300---experimental):
-
-```javascript
-var types = require('node-sass').types
+var types = require('sass').types
 module.exports = {
   plugins: {
     sass: {
-      mode: 'native', // custom functions are only supported in 'native' mode
       functions: {
-        sin: function(val) { types.Number(Math.sin(val.getValue())) },
-        cos: function(val) { types.Number(Math.cos(val.getValue())) },
-        tan: function(val) { types.Number(Math.tan(val.getValue())) }
+        'example($foo, $bar)': function(foo, bar) {
+          return new types.String("I'm an example")
+        }
       }
     }
   }

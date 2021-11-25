@@ -1,6 +1,9 @@
+# Unreleased
+* Remove support for many options that haven't worked since the version 3.0.0 switch to Dart Sass. For sourcemap-related options, see Brunch's [`sourceMaps`](https://brunch.io/docs/config#sourcemaps).
+
 # sass-brunch 3.0.0 (Mar 19, 2020)
 * Update for brunch 3
-* Switch to native node sass, remove support for ruby-sass
+* Switch to the pure-JavaScript release of Dart Sass, remove support for libsass and ruby-sass
 
 # sass-brunch 2.6.2 (Apr 5, 2016)
 * Add source map support for `native`

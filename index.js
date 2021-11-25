@@ -92,9 +92,6 @@ class SassCompiler {
     const {data, path} = source;
     if (!data.trim().length) return Promise.resolve({data: ''}); // skip empty source files
 
-    const debugMode = this.config.debug;
-    const hasComments = debugMode === 'comments' && !this.optimize;
-
     try {
       // Sync render is >2x faster (without using external deps.) according to
       // dart-sass docs: https://github.com/sass/dart-sass#javascript-api
@@ -103,13 +100,11 @@ class SassCompiler {
         data: source.data,
         includePaths: this._getIncludePaths(source.path),
         outputStyle: this.optimize ? 'compressed' : 'expanded',
-        sourceComments: hasComments,
         indentedSyntax: sassRe.test(source.path),
         outFile: 'a.css',
         functions: this.config.functions,
         sourceMap: true,
         omitSourceMapUrl: true,
-        sourceMapEmbed: !this.optimize && this.config.sourceMapEmbed,
         sourceMapRoot: source.path,
         importer: nodeSassGlobImporter(),
       });
