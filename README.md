@@ -12,18 +12,17 @@ Set additional include paths:
 includePaths: ['node_modules/foundation/scss']
 ```
 
-Use libsass [experimental custom functions](https://github.com/sass/node-sass#functions--v300---experimental):
+Use [custom functions](https://sass-lang.com/documentation/js-api/interfaces/LegacySharedOptions#functions) (only synchronous functions are supported):
 
 ```javascript
-var types = require('node-sass').types
+var types = require('sass').types
 module.exports = {
   plugins: {
     sass: {
-      mode: 'native', // custom functions are only supported in 'native' mode
       functions: {
-        sin: function(val) { types.Number(Math.sin(val.getValue())) },
-        cos: function(val) { types.Number(Math.cos(val.getValue())) },
-        tan: function(val) { types.Number(Math.tan(val.getValue())) }
+        'example($foo, $bar)': function(foo, bar) {
+          return new types.String("I'm an example")
+        }
       }
     }
   }
